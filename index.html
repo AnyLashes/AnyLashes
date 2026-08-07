@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnyLashes | Tu mirada, nuestra prioridad</title>
+<meta name="description" content="AnyLashes — Extensiones de pestañas con diseño personalizado. Realza tu mirada con un acabado natural o glam, hecho a tu medida. Agenda tu cita por WhatsApp.">
+<link rel="icon" type="image/png" href="assets/AnyLashes-logo-HD-transparente.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ================= SVG ICON SPRITE ================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></symbol>
+    <symbol id="icon-sparkle" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="icon-layers" viewBox="0 0 24 24"><polygon points="12 3 21 8 12 13 3 8 12 3"/><polyline points="3 13 12 18 21 13"/></symbol>
+    <symbol id="icon-layers-plus" viewBox="0 0 24 24"><polygon points="12 2 21 7 12 12 3 7 12 2"/><polyline points="3 12 12 17 21 12"/><polyline points="3 16.5 12 21.5 21 16.5"/></symbol>
+    <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M4 4v6h6"/><path d="M4.5 10A8 8 0 1112 20"/></symbol>
+    <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 5-3.5 8-7 9-3.5-1-7-4-7-9V6l7-3z"/><polyline points="9 12 11 14 15 10"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></symbol>
+    <symbol id="icon-chat" viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v11a1 1 0 01-1 1H9l-4 4v-4H4a1 1 0 01-1-1V5a1 1 0 011-1z"/></symbol>
+    <symbol id="icon-camera" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></symbol>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></symbol>
+    <symbol id="icon-star" viewBox="0 0 24 24"><path d="M12 2l2.9 6.2 6.8.6-5.1 4.6 1.5 6.7L12 16.9 5.9 20l1.5-6.7L2.3 8.7l6.8-.6L12 2z"/></symbol>
+    <symbol id="icon-drop" viewBox="0 0 24 24"><path d="M12 2s7 8 7 13a7 7 0 11-14 0c0-5 7-13 7-13z"/></symbol>
+    <symbol id="icon-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="5" y1="19" x2="19" y2="5"/></symbol>
+    <symbol id="icon-brush" viewBox="0 0 24 24"><path d="M9.06 11.9l8.07-8.06a2.85 2.85 0 114.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-1.5 1.52-1 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 00-3-3.02z"/></symbol>
+    <symbol id="icon-wind" viewBox="0 0 24 24"><path d="M9.59 4.59A2 2 0 1111 8H2m10.59 11.41A2 2 0 1014 16H2m15.73-8.27A2.5 2.5 0 1119.5 12H2"/></symbol>
+    <symbol id="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></symbol>
+    <symbol id="icon-tip" viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.7c.6.5 1 1.2 1 2.3h6c0-1.1.4-1.8 1-2.3A7 7 0 0012 2z"/></symbol>
+    <symbol id="icon-gem" viewBox="0 0 24 24"><polygon points="12 2 3 9 12 22 21 9 12 2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="12" y2="9"/><line x1="15" y1="3" x2="12" y2="9"/></symbol>
+    <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/></symbol>
+    <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="icon-hand" viewBox="0 0 24 24"><path d="M8 12V5a1.5 1.5 0 013 0v6M11 11V4a1.5 1.5 0 013 0v7M14 11.5V6a1.5 1.5 0 013 0v8M17 12v-1a1.5 1.5 0 013 0v5a6 6 0 01-6 6h-2a7 7 0 01-6-3.5L4 15.5a1.5 1.5 0 012.5-1.7L8 15.5"/></symbol>
+  </defs>
+</svg>
+
+<!-- ================= TOP BAR ================= -->
+<div class="topbar">
+  <div class="topbar__track" id="topbarTrack">
+    <span class="topbar__msg">Agenda tu cita por WhatsApp</span>
+    <span class="topbar__msg">Diseño personalizado para cada mirada</span>
+    <span class="topbar__msg">Atención con cita previa</span>
+  </div>
+</div>
+
+<!-- ================= HEADER / NAVBAR ================= -->
+<header class="header" id="siteHeader">
+  <div class="container header__inner">
+    <a href="#inicio" class="header__brand" aria-label="AnyLashes — inicio">
+      <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="header__logo">
+    </a>
+
+    <nav class="nav" id="mainNav" aria-label="Navegación principal">
+      <ul class="nav__list">
+        <li><a href="#inicio" class="nav__link">Inicio</a></li>
+        <li><a href="#servicios" class="nav__link">Servicios</a></li>
+        <li><a href="#trabajos" class="nav__link">Trabajos</a></li>
+        <li><a href="#galeria" class="nav__link">Galería</a></li>
+        <li><a href="#cuidados" class="nav__link">Cuidados</a></li>
+        <li><a href="#proceso" class="nav__link">Proceso</a></li>
+        <li><a href="#faq" class="nav__link">FAQ</a></li>
+        <li><a href="#contacto" class="nav__link">Contacto</a></li>
+      </ul>
+    </nav>
+
+    <div class="header__actions">
+      <a href="#reserva" class="btn btn--primary btn--sm header__cta">Agendar cita</a>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobileMenu">
+        <svg class="icon"><use href="#icon-menu"></use></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile menu — fuera del <header> a propósito: el header usa
+     backdrop-filter, que en móvil "atrapa" a los elementos position:fixed
+     hijos suyos y les impide cubrir toda la pantalla. -->
+<div class="mobile-menu__backdrop" id="mobileMenuBackdrop"></div>
+<div class="mobile-menu" id="mobileMenu">
+  <div class="mobile-menu__head">
+    <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="mobile-menu__logo">
+    <button class="hamburger" id="closeMenuBtn" aria-label="Cerrar menú">
+      <svg class="icon"><use href="#icon-close"></use></svg>
+    </button>
+  </div>
+  <ul class="mobile-menu__list">
+    <li><a href="#inicio" class="mobile-menu__link">Inicio</a></li>
+    <li><a href="#servicios" class="mobile-menu__link">Servicios</a></li>
+    <li><a href="#trabajos" class="mobile-menu__link">Trabajos</a></li>
+    <li><a href="#galeria" class="mobile-menu__link">Galería</a></li>
+    <li><a href="#cuidados" class="mobile-menu__link">Cuidados</a></li>
+    <li><a href="#proceso" class="mobile-menu__link">Proceso</a></li>
+    <li><a href="#faq" class="mobile-menu__link">FAQ</a></li>
+    <li><a href="#contacto" class="mobile-menu__link">Contacto</a></li>
+  </ul>
+  <a href="#reserva" class="btn btn--primary mobile-menu__cta">Agendar cita</a>
+</div>
+
+<main>
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="inicio">
+    <div class="container hero__inner">
+      <div class="hero__content reveal">
+        <p class="eyebrow">Extensiones de pestañas</p>
+        <h1 class="hero__title">Realza tu mirada con un diseño hecho para ti</h1>
+        <p class="hero__text">En AnyLashes cuidamos cada detalle para que tus pestañas luzcan elegantes, naturales y perfectamente adaptadas a tu estilo.</p>
+        <div class="hero__actions">
+          <a href="#" class="btn btn--primary btn--lg js-whatsapp-cta">
+            <svg class="icon"><use href="#icon-chat"></use></svg>
+            Agendar por WhatsApp
+          </a>
+          <a href="#servicios" class="btn btn--ghost btn--lg">Ver servicios</a>
+        </div>
+      </div>
+
+      <div class="hero__visual reveal">
+        <div class="hero__frame">
+          <div class="lash-anim" id="lashAnim" role="img" aria-label="Ilustración animada de un ojo con pestañas de AnyLashes abriéndose y construyéndose extensión por extensión">
+            <svg class="lash-anim__svg" id="lashAnimSvg" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <linearGradient id="lashFiberGrad" x1="0" y1="1" x2="0" y2="0">
+                  <stop offset="0%" stop-color="#1C1917"/>
+                  <stop offset="100%" stop-color="#4A3F35"/>
+                </linearGradient>
+                <radialGradient id="lashGlowGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#D6B26B" stop-opacity="0.55"/>
+                  <stop offset="100%" stop-color="#D6B26B" stop-opacity="0"/>
+                </radialGradient>
+                <radialGradient id="lashScleraGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="#FFFDF6" stop-opacity="0.62"/>
+                  <stop offset="72%" stop-color="#FFFDF6" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#FFFDF6" stop-opacity="0"/>
+                </radialGradient>
+                <filter id="lashBlur" x="-80%" y="-80%" width="260%" height="260%">
+                  <feGaussianBlur stdDeviation="26"/>
+                </filter>
+                <filter id="lashSoftBlur" x="-200%" y="-200%" width="500%" height="500%">
+                  <feGaussianBlur stdDeviation="1.4"/>
+                </filter>
+                <filter id="lashEyeBlur" x="-100%" y="-100%" width="300%" height="300%">
+                  <feGaussianBlur stdDeviation="2.4"/>
+                </filter>
+              </defs>
+
+              <g class="lash-anim__bg">
+                <circle class="lash-anim__blob lash-anim__blob--a" cx="55" cy="70" r="80" filter="url(#lashBlur)"/>
+                <circle class="lash-anim__blob lash-anim__blob--b" cx="345" cy="430" r="95" filter="url(#lashBlur)"/>
+              </g>
+
+              <g class="lash-anim__sparkles">
+                <circle class="lash-anim__sparkle" cx="70" cy="90" r="2.6" style="--sp-delay:0s; --sp-dur:4.2s"/>
+                <circle class="lash-anim__sparkle" cx="330" cy="150" r="2" style="--sp-delay:1.1s; --sp-dur:5.1s"/>
+                <circle class="lash-anim__sparkle" cx="300" cy="70" r="1.6" style="--sp-delay:2.3s; --sp-dur:3.6s"/>
+                <circle class="lash-anim__sparkle" cx="60" cy="360" r="2.2" style="--sp-delay:0.6s; --sp-dur:4.8s"/>
+                <circle class="lash-anim__sparkle" cx="345" cy="330" r="1.8" style="--sp-delay:1.8s; --sp-dur:4s"/>
+              </g>
+
+              <path class="lash-anim__brow" id="lashAnimBrowGuide" d="M85,158 Q205,103 325,148" />
+              <g class="lash-anim__brow-shape" id="lashBrowShape"></g>
+
+              <path class="lash-anim__socket" id="lashAnimSocket" d="M78,300 Q200,320 322,278" />
+
+              <g class="lash-anim__eyeball" id="lashAnimEyeball">
+                <ellipse class="lash-anim__sclera" cx="0" cy="0" rx="53" ry="32" filter="url(#lashEyeBlur)"/>
+                <path class="lash-anim__eye-shade" d="M -49,-13 Q 0,-33 49,-13 Q 0,-2 -49,-13 Z" filter="url(#lashEyeBlur)"/>
+                <circle class="lash-anim__iris-outer" cx="0" cy="0" r="21"/>
+                <circle class="lash-anim__iris-mid" cx="0" cy="0" r="14"/>
+                <circle class="lash-anim__pupil" cx="0" cy="0" r="7"/>
+                <circle class="lash-anim__catchlight" cx="-6.5" cy="-6.5" r="2.6"/>
+              </g>
+
+              <ellipse class="lash-anim__glow" id="lashAnimGlow" cx="200" cy="290" rx="150" ry="46" fill="url(#lashGlowGrad)" filter="url(#lashSoftBlur)"/>
+
+              <path class="lash-anim__lid" id="lashAnimLid" d="M78,300 Q200,292 322,278">
+                <animate id="lashLidAnim" attributeName="d" dur="11s" repeatCount="indefinite"
+                  calcMode="spline" keyTimes="0; 0.4; 0.52; 0.88; 1"
+                  keySplines="0.45 0 0.2 1; 0.45 0 0.2 1; 0.45 0 0.2 1; 0.45 0 0.2 1"
+                  values="M78,300 Q200,292 322,278;
+                          M78,300 Q200,203 322,278;
+                          M78,300 Q200,198 322,278;
+                          M78,300 Q200,292 322,278;
+                          M78,300 Q200,292 322,278" />
+              </path>
+
+              <g class="lash-anim__group" id="lashAnimGroup"></g>
+
+              <circle class="lash-anim__tip" id="lashAnimTip" r="4.5"/>
+            </svg>
+          </div>
+        </div>
+        <div class="hero__float-card">
+          <ul class="hero__float-list">
+            <li><svg class="icon icon--sm"><use href="#icon-sparkle"></use></svg>Diseño personalizado</li>
+            <li><svg class="icon icon--sm"><use href="#icon-hand"></use></svg>Aplicación cuidadosa</li>
+            <li><svg class="icon icon--sm"><use href="#icon-eye"></use></svg>Acabado natural o glam</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= BARRA DE BENEFICIOS / CATEGORÍAS ================= -->
+  <section class="cat-bar reveal" aria-label="Categorías rápidas">
+    <div class="container cat-bar__inner">
+      <a href="#servicios" class="cat-chip"><svg class="icon icon--sm"><use href="#icon-eye"></use></svg>Clásicas</a>
+      <a href="#servicios" class="cat-chip"><svg class="icon icon--sm"><use href="#icon-layers"></use></svg>Híbridas</a>
+      <a href="#servicios" class="cat-chip"><svg class="icon icon--sm"><use href="#icon-layers-plus"></use></svg>Volumen</a>
+      <a href="#servicios" class="cat-chip"><svg class="icon icon--sm"><use href="#icon-sparkle"></use></svg>Efecto natural</a>
+      <a href="#servicios" class="cat-chip"><svg class="icon icon--sm"><use href="#icon-refresh"></use></svg>Retoque</a>
+      <a href="#cuidados" class="cat-chip"><svg class="icon icon--sm"><use href="#icon-heart"></use></svg>Cuidados</a>
+      <a href="#reserva" class="cat-chip"><svg class="icon icon--sm"><use href="#icon-calendar"></use></svg>Agenda</a>
+    </div>
+  </section>
+
+  <!-- ================= SERVICIOS DESTACADOS ================= -->
+  <section class="section" id="servicios">
+    <div class="container">
+      <div class="section__head reveal">
+        <p class="eyebrow">Servicios</p>
+        <h2 class="section__title">Servicios destacados</h2>
+        <p class="section__text">Cada servicio se adapta a la forma de tus ojos y al efecto que quieras lograr.</p>
+      </div>
+
+      <div class="grid grid--services">
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/Clasicas.jpeg" alt="Técnica clásica de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Técnica clásica</h3>
+            <p class="card__text">Natural y elegante, perfecta para el día a día.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>2 h aprox.</span>
+              <span class="card__price">Desde $350</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Técnica clásica">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/Hibrido.png" alt="Híbrido de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Híbrido</h3>
+            <p class="card__text">Algo natural, pero con volumen más definido.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>2.5 h aprox.</span>
+              <span class="card__price">Desde $400</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Híbrido">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/Rimel.jpeg" alt="Efecto rímel de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Efecto rímel</h3>
+            <p class="card__text">Más definición y longitud, como si fuera rímel.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>2 h aprox.</span>
+              <span class="card__price">Desde $400</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Efecto rímel">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/Wyspy.png" alt="Efecto wispy de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Efecto wispy</h3>
+            <p class="card__text">Ojos coquetos, como si tuvieras las pestañas mojadas.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>2.5 h aprox.</span>
+              <span class="card__price">Desde $450</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Efecto wispy">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/hawaino.png" alt="Volumen hawaiano de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Volumen hawaiano</h3>
+            <p class="card__text">Ligero, suave y esponjoso: volumen natural y hermoso.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>2.5 h aprox.</span>
+              <span class="card__price">Desde $450</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Volumen hawaiano">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/Griego.png" alt="Volumen griego 3D de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Volumen griego (3D)</h3>
+            <p class="card__text">Look abierto y estilizado, ideal para resaltar tus ojos.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>2.5 h aprox.</span>
+              <span class="card__price">Desde $500</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Volumen griego (3D)">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/Brasileño.png" alt="Volumen brasileño 4D de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Volumen brasileño (4D)</h3>
+            <p class="card__text">Dramático y sofisticado: alargamiento más marcado y con más volumen.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>3 h aprox.</span>
+              <span class="card__price">Desde $570</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Volumen brasileño (4D)">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/Egipscio.jpeg" alt="Volumen egipcio 5D de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Volumen egipcio (5D)</h3>
+            <p class="card__text">Más volumen y más profundidad para una mirada intensa.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>3 h aprox.</span>
+              <span class="card__price">Desde $600</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Volumen egipcio (5D)">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/Mega Vol.jpeg" alt="Mega volumen de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Mega volumen</h3>
+            <p class="card__text">Máximo volumen y densidad para un impacto espectacular.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>3.5 h aprox.</span>
+              <span class="card__price">Desde $800</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Mega volumen">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/cejas.jpeg" alt="Planchado de cejas y depilación" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Planchado de cejas y depilación</h3>
+            <p class="card__text">Tus cejas son el 90% de tu selfie: enmarcan tu mirada y resaltan tu personalidad.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>45 min aprox.</span>
+              <span class="card__price">Desde $150</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Planchado de cejas y depilación">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/ alt="Retoque de extensiones de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Retoque</h3>
+            <p class="card__text">Mantén tu diseño impecable rellenando el crecimiento natural.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>1 h aprox.</span>
+              <span class="card__price">Desde $280</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Retoque">Reservar</button>
+          </div>
+        </article>
+
+        <article class="card card--service reveal">
+          <div class="card__media"><img src="assets/retirar.png"" alt="Retiro seguro de extensiones de pestañas" loading="lazy"></div>
+          <div class="card__body">
+            <h3 class="card__title">Retiro seguro</h3>
+            <p class="card__text">Removemos las extensiones cuidando tu pestaña natural.</p>
+            <div class="card__meta">
+              <span><svg class="icon icon--sm"><use href="#icon-clock"></use></svg>45 min aprox.</span>
+              <span class="card__price">Desde $200</span>
+            </div>
+            <button class="btn btn--outline btn--full js-fill-booking" data-service="Retiro seguro">Reservar</button>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TESTIMONIOS ================= -->
+  <section class="section" id="testimonios">
+    <div class="container">
+      <div class="section__head reveal">
+        <p class="eyebrow">Testimonios</p>
+        <h2 class="section__title">Lo que dicen nuestras clientas</h2>
+        <p class="section__text">La confianza se construye cita a cita. Esto es lo que comparten quienes ya vivieron la experiencia AnyLashes.</p>
+      </div>
+
+      <div class="grid grid--testimonials">
+
+        <article class="testimonial reveal">
+          <div class="testimonial__stars">
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+          </div>
+          <p class="testimonial__quote">Tengo casi un año yendo con AnyLashes y no cambio a mi lashista de confianza por nadie. Hace un trabajo impecable y las pestañas se sienten tan ligeras que se me olvida que las traigo puestas.</p>
+          <div class="testimonial__author">
+            <span class="testimonial__avatar" aria-hidden="true">AH</span>
+            <div>
+              <p class="testimonial__name">Angelina Hernández</p>
+              <p class="testimonial__role">Clienta frecuente</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial reveal">
+          <div class="testimonial__stars">
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+          </div>
+          <p class="testimonial__quote">Lo que más me gusta es lo cuidadosa que es en cada aplicación. Usa productos de buena calidad y nunca, pero nunca, me han ardido los ojos. Siempre salgo encantada del resultado.</p>
+          <div class="testimonial__author">
+            <span class="testimonial__avatar" aria-hidden="true">DM</span>
+            <div>
+              <p class="testimonial__name">Diana Marín</p>
+              <p class="testimonial__role">Clienta frecuente</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="testimonial reveal">
+          <div class="testimonial__stars">
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+            <svg class="icon icon--sm"><use href="#icon-star"></use></svg>
+          </div>
+          <p class="testimonial__quote">Cada retoque queda perfecto y la mirada se ve súper natural. Se nota que le apasiona lo que hace, es detallista y muy profesional. Totalmente recomendada.</p>
+          <div class="testimonial__author">
+            <span class="testimonial__avatar" aria-hidden="true">AC</span>
+            <div>
+              <p class="testimonial__name">Alma Carreón</p>
+              <p class="testimonial__role">Clienta frecuente</p>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ÚLTIMOS TRABAJOS (dinámico) ================= -->
+  <section class="section section--tint" id="trabajos">
+    <div class="container">
+      <div class="section__head reveal">
+        <p class="eyebrow">Trabajos recientes</p>
+        <h2 class="section__title">Lo último que hicimos este mes</h2>
+        <p class="section__text">Una muestra real de los diseños que hemos aplicado recientemente.</p>
+      </div>
+
+      <div class="work-gallery" id="workGallery">
+        <p class="work-gallery__empty">Muy pronto verás aquí los trabajos más recientes del mes.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= EXPERIENCIA ANYLASHES ================= -->
+  <section class="section" id="experiencia">
+    <div class="container">
+      <div class="section__head reveal">
+        <p class="eyebrow">Experiencia</p>
+        <h2 class="section__title">Una experiencia pensada para ti</h2>
+      </div>
+
+      <div class="grid grid--3">
+        <div class="feature reveal">
+          <div class="feature__icon"><svg class="icon"><use href="#icon-search"></use></svg></div>
+          <h3 class="feature__title">Diagnóstico de mirada</h3>
+          <p class="feature__text">Analizamos la forma de tus ojos y el efecto que deseas lograr.</p>
+        </div>
+        <div class="feature reveal">
+          <div class="feature__icon"><svg class="icon"><use href="#icon-sparkle"></use></svg></div>
+          <h3 class="feature__title">Diseño personalizado</h3>
+          <p class="feature__text">Elegimos largo, curvatura y volumen de acuerdo con tu estilo.</p>
+        </div>
+        <div class="feature reveal">
+          <div class="feature__icon"><svg class="icon"><use href="#icon-hand"></use></svg></div>
+          <h3 class="feature__title">Aplicación cuidadosa</h3>
+          <p class="feature__text">Trabajamos con detalle para lograr un acabado limpio, cómodo y duradero.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LASH ARTIST ================= -->
+  <section class="section section--tint">
+    <div class="container artist">
+      <div class="artist__visual reveal">
+        <img src="assets/lash-artist.jpg" alt="Lash artist de AnyLashes aplicando extensiones" loading="lazy">
+      </div>
+      <div class="artist__content reveal">
+        <p class="eyebrow">Lash Artist</p>
+        <h2 class="section__title">Diseño con técnica y delicadeza</h2>
+        <p class="section__text">Cada aplicación se realiza cuidando la forma de tus ojos, el largo adecuado y el efecto que quieres lograr.</p>
+        <div class="stats">
+          <div class="stat">
+            <span class="stat__num" data-count="500">0</span>
+            <span class="stat__label">Clientas atendidas</span>
+          </div>
+          <div class="stat">
+            <span class="stat__num" data-count="6">0</span>
+            <span class="stat__label">Diseños personalizados</span>
+          </div>
+          <div class="stat">
+            <span class="stat__num" data-count="100">0</span>
+            <span class="stat__label">Atención con cita</span>
+          </div>
+          <div class="stat">
+            <span class="stat__num" data-count="100">0</span>
+            <span class="stat__label">Cuidado de pestaña natural</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GALERÍA ================= -->
+  <section class="section" id="galeria">
+    <div class="container">
+      <div class="section__head reveal">
+        <p class="eyebrow">Galería</p>
+        <h2 class="section__title">Resultados que hablan por tu mirada</h2>
+      </div>
+
+      <div class="gallery">
+        <figure class="gallery__item reveal">
+          <img src="assets/gallery-1.jpg" alt="Antes y después de extensiones de pestañas" loading="lazy">
+          <figcaption>Antes y después</figcaption>
+        </figure>
+        <figure class="gallery__item reveal">
+          <img src="assets/gallery-2.jpg" alt="Resultado efecto natural" loading="lazy">
+          <figcaption>Natural</figcaption>
+        </figure>
+        <figure class="gallery__item reveal">
+          <img src="assets/gallery-3.jpg" alt="Resultado volumen" loading="lazy">
+          <figcaption>Volumen</figcaption>
+        </figure>
+        <figure class="gallery__item reveal">
+          <img src="assets/gallery-4.jpg" alt="Detalle de la aplicación de pestañas" loading="lazy">
+          <figcaption>Detalles</figcaption>
+        </figure>
+        <figure class="gallery__item reveal">
+          <img src="assets/gallery-5.jpg" alt="Resultado estilo cat eye" loading="lazy">
+          <figcaption>Cat Eye</figcaption>
+        </figure>
+        <figure class="gallery__item reveal">
+          <img src="assets/gallery-6.jpg" alt="Resultado estilo wispy" loading="lazy">
+          <figcaption>Wispy</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PROCESO DE CITA ================= -->
+  <section class="section section--tint" id="proceso">
+    <div class="container">
+      <div class="section__head reveal">
+        <p class="eyebrow">Proceso</p>
+        <h2 class="section__title">Así será tu cita</h2>
+      </div>
+
+      <ol class="timeline">
+        <li class="timeline__item reveal">
+          <span class="timeline__icon"><svg class="icon"><use href="#icon-chat"></use></svg></span>
+          <div class="timeline__body">
+            <span class="timeline__step">Paso 1</span>
+            <h3 class="timeline__title">Agenda por WhatsApp</h3>
+            <p class="timeline__text">Cuéntanos el servicio y estilo que te interesa.</p>
+          </div>
+        </li>
+        <li class="timeline__item reveal">
+          <span class="timeline__icon"><svg class="icon"><use href="#icon-sparkle"></use></svg></span>
+          <div class="timeline__body">
+            <span class="timeline__step">Paso 2</span>
+            <h3 class="timeline__title">Elegimos el diseño ideal</h3>
+            <p class="timeline__text">Definimos largo, curvatura y volumen para tu mirada.</p>
+          </div>
+        </li>
+        <li class="timeline__item reveal">
+          <span class="timeline__icon"><svg class="icon"><use href="#icon-hand"></use></svg></span>
+          <div class="timeline__body">
+            <span class="timeline__step">Paso 3</span>
+            <h3 class="timeline__title">Aplicación con cuidado</h3>
+            <p class="timeline__text">Trabajamos con calma y detalle en cada pestaña.</p>
+          </div>
+        </li>
+        <li class="timeline__item reveal">
+          <span class="timeline__icon"><svg class="icon"><use href="#icon-check"></use></svg></span>
+          <div class="timeline__body">
+            <span class="timeline__step">Paso 4</span>
+            <h3 class="timeline__title">Revisión final y recomendaciones</h3>
+            <p class="timeline__text">Revisamos el resultado y te damos tips de cuidado.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ================= CUIDADOS ================= -->
+  <section class="section" id="cuidados">
+    <div class="container">
+      <div class="section__head reveal">
+        <p class="eyebrow">Cuidados</p>
+        <h2 class="section__title">Cuidados después de tu aplicación</h2>
+        <p class="section__text">Para que tus extensiones luzcan bonitas por más tiempo, sigue estos cuidados básicos.</p>
+      </div>
+
+      <div class="care">
+        <ul class="care__list reveal">
+          <li><svg class="icon icon--sm"><use href="#icon-ban"></use></svg>No mojar las pestañas durante las primeras 24 horas.</li>
+          <li><svg class="icon icon--sm"><use href="#icon-drop"></use></svg>Evitar aceites en la zona de los ojos.</li>
+          <li><svg class="icon icon--sm"><use href="#icon-brush"></use></svg>Cepillar suavemente todos los días.</li>
+          <li><svg class="icon icon--sm"><use href="#icon-hand"></use></svg>No frotar ni jalar las extensiones.</li>
+          <li><svg class="icon icon--sm"><use href="#icon-wind"></use></svg>Evitar vapor intenso las primeras horas.</li>
+          <li><svg class="icon icon--sm"><use href="#icon-moon"></use></svg>Dormir evitando presionar el rostro contra la almohada.</li>
+          <li><svg class="icon icon--sm"><use href="#icon-refresh"></use></svg>Agendar retoque para mantener el resultado.</li>
+        </ul>
+
+        <div class="tip-card reveal">
+          <div class="tip-card__icon"><svg class="icon"><use href="#icon-tip"></use></svg></div>
+          <p class="tip-card__label">Tip AnyLashes</p>
+          <p class="tip-card__text">Un cepillado suave diario ayuda a mantener la forma y limpieza de tus extensiones.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= RECOMENDACIONES SEGÚN TU ESTILO ================= -->
+  <section class="section section--tint">
+    <div class="container">
+      <div class="section__head reveal">
+        <p class="eyebrow">Guía visual</p>
+        <h2 class="section__title">Elige el efecto ideal para ti</h2>
+      </div>
+
+      <div class="grid grid--reco">
+        <div class="reco-card reveal">
+          <h3 class="reco-card__title">¿Buscas algo natural?</h3>
+          <p class="reco-card__text">Técnica clásica o Natural Soft para un resultado discreto y elegante.</p>
+          <button class="btn btn--outline btn--full js-fill-booking" data-service="Técnica clásica" data-style="Natural Soft">Quiero este estilo</button>
+        </div>
+        <div class="reco-card reveal">
+          <h3 class="reco-card__title">¿Quieres más presencia?</h3>
+          <p class="reco-card__text">Híbrido o Wispy Look para más textura y definición.</p>
+          <button class="btn btn--outline btn--full js-fill-booking" data-service="Híbrido" data-style="Wispy Look">Quiero este estilo</button>
+        </div>
+        <div class="reco-card reveal">
+          <h3 class="reco-card__title">¿Mirada más levantada?</h3>
+          <p class="reco-card__text">Volumen griego (3D) para alargar y elevar la forma de tus ojos.</p>
+          <button class="btn btn--outline btn--full js-fill-booking" data-service="Volumen griego (3D)" data-style="Cat Eye">Quiero este estilo</button>
+        </div>
+        <div class="reco-card reveal">
+          <h3 class="reco-card__title">¿Buscas glamour?</h3>
+          <p class="reco-card__text">Mega volumen para una mirada intensa y espectacular.</p>
+          <button class="btn btn--outline btn--full js-fill-booking" data-service="Mega volumen" data-style="Volumen Elegante">Quiero este estilo</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= INTERFAZ DE RESERVA ================= -->
+  <section class="section booking" id="reserva">
+    <div class="container">
+      <div class="booking__panel reveal">
+        <div class="section__head section__head--left">
+          <p class="eyebrow">Reserva</p>
+          <h2 class="section__title">Reserva tu diseño</h2>
+          <p class="section__text">Selecciona tus preferencias y agenda directamente por WhatsApp.</p>
+        </div>
+
+        <form class="booking__form" id="bookingForm" novalidate>
+          <div class="field">
+            <label for="bookingService">Selecciona servicio</label>
+            <select id="bookingService" name="service">
+              <option value="">Elige un servicio</option>
+              <option value="Técnica clásica">Técnica clásica</option>
+              <option value="Híbrido">Híbrido</option>
+              <option value="Efecto rímel">Efecto rímel</option>
+              <option value="Efecto wispy">Efecto wispy</option>
+              <option value="Volumen hawaiano">Volumen hawaiano</option>
+              <option value="Volumen griego (3D)">Volumen griego (3D)</option>
+              <option value="Volumen brasileño (4D)">Volumen brasileño (4D)</option>
+              <option value="Volumen egipcio (5D)">Volumen egipcio (5D)</option>
+              <option value="Mega volumen">Mega volumen</option>
+              <option value="Planchado de cejas y depilación">Planchado de cejas y depilación</option>
+              <option value="Retoque">Retoque</option>
+              <option value="Retiro seguro">Retiro seguro</option>
+            </select>
+            <span class="field__error" id="errorService">Por favor selecciona un servicio.</span>
+          </div>
+
+          <div class="field">
+            <label for="bookingStyle">Selecciona estilo</label>
+            <select id="bookingStyle" name="style">
+              <option value="">Elige un estilo</option>
+              <option value="Natural Soft">Natural Soft</option>
+              <option value="Ojos de muñeca">Ojos de muñeca</option>
+              <option value="Cat Eye">Cat Eye</option>
+              <option value="Wispy Look">Wispy Look</option>
+              <option value="Doll Eye">Doll Eye</option>
+              <option value="Volumen Elegante">Volumen Elegante</option>
+            </select>
+            <span class="field__error" id="errorStyle">Por favor selecciona un estilo.</span>
+          </div>
+
+          <div class="field">
+            <label for="bookingDate">Selecciona fecha</label>
+            <input type="date" id="bookingDate" name="date">
+            <span class="field__error" id="errorDate">Por favor selecciona una fecha.</span>
+          </div>
+
+          <div class="field">
+            <label>Horarios disponibles</label>
+            <div class="slots" id="bookingSlots">
+              <p class="slots__empty">Elige primero una fecha para ver los horarios disponibles.</p>
+            </div>
+            <input type="hidden" id="bookingTime" name="time">
+            <span class="field__error" id="errorTime">Por favor selecciona un horario disponible.</span>
+          </div>
+
+          <div class="field">
+            <label for="bookingName">Tu nombre</label>
+            <input type="text" id="bookingName" name="clientName" placeholder="¿Cómo te llamas?" autocomplete="name">
+            <span class="field__error" id="errorName">Por favor escribe tu nombre.</span>
+          </div>
+
+          <div class="field">
+            <label for="bookingPhone">Tu número de WhatsApp</label>
+            <input type="tel" id="bookingPhone" name="clientPhone" placeholder="10 dígitos, ej. 2321234567" inputmode="numeric" autocomplete="tel">
+            <span class="field__error" id="errorPhone">Ingresa un número válido a 10 dígitos para poder confirmar tu cita.</span>
+          </div>
+
+          <div class="booking__summary" id="bookingSummary" aria-live="polite">
+            <p>Tu selección aparecerá aquí antes de enviarla por WhatsApp.</p>
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--lg btn--full">
+            <svg class="icon"><use href="#icon-chat"></use></svg>
+            Agendar por WhatsApp
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="section" id="faq">
+    <div class="container container--narrow">
+      <div class="section__head reveal">
+        <p class="eyebrow">Preguntas</p>
+        <h2 class="section__title">Preguntas frecuentes</h2>
+      </div>
+
+      <div class="accordion reveal">
+        <div class="accordion__item">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq1">
+            ¿Cuánto dura la aplicación?
+            <svg class="icon icon--sm accordion__chevron"><use href="#icon-chevron-down"></use></svg>
+          </button>
+          <div class="accordion__panel" id="faq1" role="region">
+            <p>La aplicación toma entre 1.5 y 2.5 horas dependiendo del servicio elegido.</p>
+          </div>
+        </div>
+
+        <div class="accordion__item">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq2">
+            ¿Cuánto duran las extensiones?
+            <svg class="icon icon--sm accordion__chevron"><use href="#icon-chevron-down"></use></svg>
+          </button>
+          <div class="accordion__panel" id="faq2" role="region">
+            <p>Duran de 3 a 4 semanas aproximadamente, según el ciclo de crecimiento de tu pestaña natural.</p>
+          </div>
+        </div>
+
+        <div class="accordion__item">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq3">
+            ¿Daña mis pestañas naturales?
+            <svg class="icon icon--sm accordion__chevron"><use href="#icon-chevron-down"></use></svg>
+          </button>
+          <div class="accordion__panel" id="faq3" role="region">
+            <p>No, siguiendo el proceso y cuidados adecuados tu pestaña natural se mantiene sana.</p>
+          </div>
+        </div>
+
+        <div class="accordion__item">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq4">
+            ¿Cada cuánto se recomienda el retoque?
+            <svg class="icon icon--sm accordion__chevron"><use href="#icon-chevron-down"></use></svg>
+          </button>
+          <div class="accordion__panel" id="faq4" role="region">
+            <p>Recomendamos un retoque cada 2 a 3 semanas para mantener el diseño impecable.</p>
+          </div>
+        </div>
+
+        <div class="accordion__item">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq5">
+            ¿Puedo maquillarme?
+            <svg class="icon icon--sm accordion__chevron"><use href="#icon-chevron-down"></use></svg>
+          </button>
+          <div class="accordion__panel" id="faq5" role="region">
+            <p>Sí, evitando maquillaje graso o a base de aceite directamente sobre las extensiones.</p>
+          </div>
+        </div>
+
+        <div class="accordion__item">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="faq6">
+            ¿Cómo debo cuidarlas?
+            <svg class="icon icon--sm accordion__chevron"><use href="#icon-chevron-down"></use></svg>
+          </button>
+          <div class="accordion__panel" id="faq6" role="region">
+            <p>Cepilla a diario, evita el agua las primeras 24 horas y agenda tu retoque a tiempo. Ver más en la sección de cuidados.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CONFIANZA / BENEFICIOS FINALES ================= -->
+  <section class="section section--tint">
+    <div class="container">
+      <div class="grid grid--trust">
+        <div class="trust reveal"><svg class="icon"><use href="#icon-hand"></use></svg><span>Aplicación cuidadosa</span></div>
+        <div class="trust reveal"><svg class="icon"><use href="#icon-sparkle"></use></svg><span>Diseño personalizado</span></div>
+        <div class="trust reveal"><svg class="icon"><use href="#icon-gem"></use></svg><span>Materiales seleccionados</span></div>
+        <div class="trust reveal"><svg class="icon"><use href="#icon-heart"></use></svg><span>Atención amable</span></div>
+        <div class="trust reveal"><svg class="icon"><use href="#icon-check"></use></svg><span>Acabado limpio</span></div>
+        <div class="trust reveal"><svg class="icon"><use href="#icon-shield"></use></svg><span>Recomendaciones de cuidado</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CTA FINAL ================= -->
+  <section class="cta-final">
+    <div class="container cta-final__inner reveal">
+      <h2 class="cta-final__title">Tu próxima mirada empieza aquí</h2>
+      <p class="cta-final__text">Agenda tu cita y elige el diseño que mejor va contigo.</p>
+      <div class="cta-final__actions">
+        <a href="#" class="btn btn--primary btn--lg js-whatsapp-cta">
+          <svg class="icon"><use href="#icon-chat"></use></svg>
+          Escribir por WhatsApp
+        </a>
+        <a href="https://instagram.com/anylashes90" target="_blank" rel="noopener" class="btn btn--ghost-invert btn--lg">
+          <svg class="icon"><use href="#icon-camera"></use></svg>
+          Síguenos en Instagram
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer" id="contacto">
+  <div class="container footer__inner">
+    <div class="footer__brand">
+      <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="footer__logo">
+      <p class="footer__tagline">Tu mirada, nuestra prioridad</p>
+      <div class="footer__social">
+        <a href="#" class="js-whatsapp-cta footer__social-link" aria-label="WhatsApp AnyLashes">
+          <svg class="icon"><use href="#icon-chat"></use></svg>
+        </a>
+        <a href="https://instagram.com/anylashes90" target="_blank" rel="noopener" class="footer__social-link" aria-label="Instagram AnyLashes">
+          <svg class="icon"><use href="#icon-camera"></use></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer__col">
+      <h4 class="footer__heading">Links rápidos</h4>
+      <ul class="footer__list">
+        <li><a href="#servicios">Servicios</a></li>
+        <li><a href="#trabajos">Trabajos</a></li>
+        <li><a href="#galeria">Galería</a></li>
+        <li><a href="#cuidados">Cuidados</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h4 class="footer__heading">Contacto</h4>
+      <ul class="footer__list">
+        <li>WhatsApp: 232 176 5311</li>
+        <li>Instagram: @anylashes90</li>
+        <li>Atención con cita previa</li>
+      </ul>
+    </div>
+
+    <div class="footer__col">
+      <h4 class="footer__heading">Horario</h4>
+      <ul class="footer__list">
+        <li>Lunes a sábado</li>
+        <li>Con cita previa</li>
+        <li>Agenda por WhatsApp</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer__bottom">
+    <p>&copy; <span id="year"></span> AnyLashes. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<button type="button" class="back-to-top" id="backToTop" aria-label="Volver arriba">
+  <svg class="icon"><use href="#icon-arrow-right"></use></svg>
+</button>
+
+<script src="script.js"></script>
+</body>
+</html>

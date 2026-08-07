@@ -1,0 +1,6 @@
+# Backend de Google Apps Script: se pega a mano en script.google.com,
+# no se sube al repositorio.
+apps-script-code.gs
+
+# Configuración local del editor/herramientas, no forma parte del sitio.
+.claude/

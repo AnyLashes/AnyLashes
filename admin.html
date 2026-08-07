@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de administración | AnyLashes</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="assets/AnyLashes-logo-HD-transparente.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="icon-arrow-right" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></symbol>
+    <symbol id="icon-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="5" y1="19" x2="19" y2="5"/></symbol>
+    <symbol id="icon-chat" viewBox="0 0 24 24"><path d="M4 4h16a1 1 0 011 1v11a1 1 0 01-1 1H9l-4 4v-4H4a1 1 0 01-1-1V5a1 1 0 011-1z"/></symbol>
+    <symbol id="icon-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9"/></symbol>
+    <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 16 14"/></symbol>
+    <symbol id="icon-close" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></symbol>
+    <symbol id="icon-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/></symbol>
+    <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></symbol>
+    <symbol id="icon-user" viewBox="0 0 24 24"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="4"/></symbol>
+    <symbol id="icon-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .3 2 .6 3a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.2-1.2a2 2 0 012.1-.5c1 .3 2 .5 3 .6a2 2 0 011.7 2z"/></symbol>
+    <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></symbol>
+    <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="icon-eye-off" viewBox="0 0 24 24"><path d="M17.94 17.94A10.94 10.94 0 0112 19c-7 0-11-7-11-7a18.5 18.5 0 015.06-5.94M9.9 4.24A10.94 10.94 0 0112 4c7 0 11 7 11 7a18.35 18.35 0 01-2.16 3.19M14.12 14.12a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></symbol>
+    <symbol id="icon-sparkle" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1112 0c0 5 2 6 2 6H4s2-1 2-6z"/><path d="M10 20a2 2 0 004 0"/></symbol>
+    <symbol id="icon-note" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></symbol>
+    <symbol id="icon-camera" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-2h5L16 7"/><circle cx="12" cy="13.5" r="3.5"/></symbol>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
+  </defs>
+</svg>
+
+<header class="admin-header">
+  <div class="admin-header__inner">
+    <a href="index.html" class="admin-header__brand">
+      <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="admin-header__logo">
+      <span>Panel de administración</span>
+    </a>
+    <div class="admin-header__actions">
+      <button type="button" class="admin-header__notify" id="notifyBtn" hidden title="Recibir aviso de citas nuevas aunque cambies de pestaña">
+        <svg class="icon icon--sm"><use href="#icon-bell"></use></svg>
+        <span>Activar notificaciones</span>
+      </button>
+      <button type="button" class="admin-header__notify" id="cleanupBtn" hidden title="Borra de la base de datos las citas de hace más de 2 meses. También se hace sola cada mes.">
+        <svg class="icon icon--sm"><use href="#icon-close"></use></svg>
+        <span>Limpiar citas antiguas</span>
+      </button>
+      <button type="button" class="admin-header__back" id="logoutBtn" hidden>
+        Cerrar sesión
+      </button>
+      <a href="index.html" class="admin-header__back">
+        <svg class="icon icon--sm" style="transform:rotate(180deg)"><use href="#icon-arrow-right"></use></svg>
+        Volver al sitio
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="admin-main" id="adminMain" hidden>
+  <div class="admin-layout">
+
+    <aside class="schedule-panel">
+      <h2 class="schedule-panel__title">Configurar horarios</h2>
+      <p class="schedule-panel__hint">Elige un día y define las horas en las que puedes recibir citas.</p>
+
+      <div class="field">
+        <label for="scheduleDate">Día a configurar</label>
+        <input type="date" id="scheduleDate">
+      </div>
+
+      <div class="schedule-generate">
+        <p class="schedule-block__label">Generar horarios automáticamente</p>
+        <div class="schedule-generate__row">
+          <div class="field field--sm">
+            <label for="genFrom">Desde</label>
+            <input type="time" id="genFrom" value="09:00">
+          </div>
+          <div class="field field--sm">
+            <label for="genTo">Hasta</label>
+            <input type="time" id="genTo" value="18:00">
+          </div>
+          <div class="field field--sm">
+            <label for="genInterval">Cada</label>
+            <select id="genInterval">
+              <option value="60">60 min</option>
+              <option value="90" selected>90 min</option>
+              <option value="120">120 min</option>
+              <option value="150">150 min</option>
+            </select>
+          </div>
+        </div>
+        <button type="button" class="btn btn--outline btn--full" id="genBtn">Generar horarios</button>
+      </div>
+
+      <div class="schedule-manual">
+        <p class="schedule-block__label">Agregar horario manual</p>
+        <div class="schedule-manual__row">
+          <input type="time" id="manualTime">
+          <button type="button" class="btn btn--outline" id="addSlotBtn">Agregar</button>
+        </div>
+      </div>
+
+      <p class="schedule-block__label">Horarios de este día</p>
+      <div class="schedule-list" id="scheduleList">
+        <p class="slots__empty">Selecciona un día para ver u ordenar sus horarios.</p>
+      </div>
+
+      <button type="button" class="btn btn--primary btn--full" id="saveScheduleBtn">Guardar horario del día</button>
+      <p class="schedule-feedback" id="scheduleFeedback" aria-live="polite"></p>
+    </aside>
+
+    <div class="admin-right">
+      <section class="calendar-panel">
+        <div class="calendar-head">
+          <button type="button" class="calendar-nav" id="prevMonthBtn" aria-label="Mes anterior">
+            <svg class="icon" style="transform:rotate(180deg)"><use href="#icon-arrow-right"></use></svg>
+          </button>
+          <h2 class="calendar-title" id="calendarTitle">—</h2>
+          <button type="button" class="calendar-nav" id="nextMonthBtn" aria-label="Mes siguiente">
+            <svg class="icon"><use href="#icon-arrow-right"></use></svg>
+          </button>
+        </div>
+
+        <div class="calendar-weekdays">
+          <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid"></div>
+
+        <div class="calendar-legend">
+          <span><i class="legend-dot legend-dot--busy"></i> Con citas</span>
+          <span><i class="legend-dot legend-dot--open"></i> Horario abierto</span>
+          <span><i class="legend-dot legend-dot--today"></i> Hoy</span>
+        </div>
+      </section>
+
+      <section class="day-panel">
+        <h2 class="day-panel__title" id="dayPanelTitle">Selecciona un día en el calendario</h2>
+        <div class="day-panel__list" id="dayPanelList">
+          <p class="slots__empty">Haz clic en cualquier día para ver sus citas.</p>
+        </div>
+      </section>
+    </div>
+
+  </div>
+</main>
+
+<!-- Acceso privado -->
+<div class="login-screen is-open" id="loginOverlay">
+  <div class="login-screen__decor login-screen__decor--1"></div>
+  <div class="login-screen__decor login-screen__decor--2"></div>
+
+  <div class="login-screen__panel">
+    <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="login-screen__logo">
+    <p class="login-screen__tagline">Tu mirada, nuestra prioridad</p>
+
+    <div class="login-screen__divider"><svg class="icon icon--sm"><use href="#icon-sparkle"></use></svg></div>
+
+    <h1 class="login-screen__title">Panel privado</h1>
+    <p class="login-screen__text">Ingresa tu contraseña para administrar horarios y citas.</p>
+
+    <form id="loginForm" class="login-screen__form">
+      <div class="login-field">
+        <label for="loginPassword">Contraseña</label>
+        <div class="login-password-wrap">
+          <svg class="icon icon--sm login-password-icon"><use href="#icon-lock"></use></svg>
+          <input type="password" id="loginPassword" autocomplete="current-password" placeholder="Tu contraseña" required>
+          <button type="button" class="login-password-toggle" id="togglePassword" aria-label="Mostrar contraseña" aria-pressed="false">
+            <svg class="icon icon--sm"><use href="#icon-eye"></use></svg>
+          </button>
+        </div>
+      </div>
+
+      <p class="login-error" id="loginError" hidden></p>
+
+      <button type="submit" class="btn btn--primary btn--lg btn--full" id="loginSubmitBtn">
+        <svg class="icon"><use href="#icon-lock"></use></svg>
+        Entrar
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de confirmación genérico (se reusa para cancelar cita y eliminar foto) -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-card">
+    <div class="modal-card__icon"><svg class="icon"><use href="#icon-ban"></use></svg></div>
+    <h3 class="modal-card__title" id="confirmModalTitle">¿Confirmar?</h3>
+    <p class="modal-card__text" id="confirmModalText"></p>
+    <div class="modal-card__actions">
+      <button type="button" class="btn btn--ghost" id="confirmModalDismiss">No, mantener</button>
+      <button type="button" class="btn btn--danger" id="confirmModalConfirm">Sí, confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="adminToast"></div>
+
+<button type="button" class="back-to-top" id="backToTop" aria-label="Volver arriba">
+  <svg class="icon"><use href="#icon-arrow-right"></use></svg>
+</button>
+
+<script src="admin.js"></script>
+</body>
+</html>
