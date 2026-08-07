@@ -56,6 +56,71 @@
     div.textContent = str == null ? '' : str;
     return div.innerHTML;
   }
+
+  // Carga una foto probando varias URLs de Drive antes de rendirse. Google
+  // a veces bloquea o tarda en propagar un formato (p. ej. justo después
+  // de subir la foto) pero no otro — por eso algunas fotos "no cargaban".
+  // Probar formatos alternos en cadena hace que casi siempre se vea.
+  function loadPhotoWithFallback(imgEl, originalUrl, onFail) {
+    // Si esta imagen ya tenía un intento de carga previo (p. ej. al
+    // reintentar desde el estado de error), quita ese listener antes de
+    // poner uno nuevo — si no, se van acumulando y un solo error dispara
+    // varios intentos encimados con estados "attempt" distintos.
+    if (imgEl._fallbackHandler) imgEl.removeEventListener('error', imgEl._fallbackHandler);
+
+    var idMatch = String(originalUrl).match(/\/d\/([^/=?&]+)/) || String(originalUrl).match(/[?&]id=([^&=]+)/);
+    var fileId = idMatch ? idMatch[1] : null;
+
+    var candidates = [originalUrl];
+    if (fileId) {
+      ['https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000',
+        'https://lh3.googleusercontent.com/d/' + fileId + '=w1000',
+        'https://drive.google.com/uc?export=view&id=' + fileId
+      ].forEach(function (u) { if (candidates.indexOf(u) === -1) candidates.push(u); });
+    }
+
+    var attempt = 0;
+    function tryNext() {
+      if (attempt >= candidates.length) {
+        imgEl.removeEventListener('error', tryNext);
+        imgEl._fallbackHandler = null;
+        if (onFail) onFail();
+        return;
+      }
+      imgEl.src = candidates[attempt++];
+    }
+    imgEl._fallbackHandler = tryNext;
+    imgEl.addEventListener('error', tryNext);
+    tryNext();
+  }
+
+  /* =========================================================
+     LIGHTBOX — ampliar una foto de trabajo con un toque
+     ========================================================= */
+  var photoLightbox = document.getElementById('photoLightbox');
+  var photoLightboxImg = document.getElementById('photoLightboxImg');
+  var photoLightboxClose = document.getElementById('photoLightboxClose');
+
+  function openPhotoLightbox(url) {
+    if (!photoLightbox || !photoLightboxImg) return;
+    photoLightboxImg.src = url;
+    photoLightbox.classList.add('is-open');
+  }
+  function closePhotoLightbox() {
+    if (!photoLightbox) return;
+    photoLightbox.classList.remove('is-open');
+    photoLightboxImg.removeAttribute('src');
+  }
+  if (photoLightboxClose) photoLightboxClose.addEventListener('click', closePhotoLightbox);
+  if (photoLightbox) {
+    photoLightbox.addEventListener('click', function (e) {
+      if (e.target === photoLightbox) closePhotoLightbox();
+    });
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && photoLightbox && photoLightbox.classList.contains('is-open')) closePhotoLightbox();
+  });
+
   // Abre una pestaña en blanco de forma síncrona (dentro del gesto del
   // usuario) para poder redirigirla luego de una respuesta async sin que
   // el navegador la bloquee como pop-up.
@@ -621,11 +686,58 @@
     input.setAttribute('capture', 'environment');
     input.hidden = true;
 
+    var frame = document.createElement('div');
+    frame.className = 'appt-card__photo-frame';
+    frame.hidden = !appt.photoUrl;
+
     var preview = document.createElement('img');
     preview.className = 'appt-card__photo-preview';
     preview.alt = 'Foto del trabajo terminado';
-    preview.hidden = !appt.photoUrl;
-    if (appt.photoUrl) preview.src = appt.photoUrl;
+    preview.loading = 'lazy';
+    preview.decoding = 'async';
+
+    var skeleton = document.createElement('div');
+    skeleton.className = 'appt-card__photo-skeleton';
+
+    var zoomHint = document.createElement('div');
+    zoomHint.className = 'appt-card__photo-zoom-hint';
+    zoomHint.innerHTML = '<svg class="icon"><use href="#icon-zoom"></use></svg>';
+
+    frame.appendChild(preview);
+    frame.appendChild(skeleton);
+    frame.appendChild(zoomHint);
+
+    function showPhotoError() {
+      frame.querySelectorAll('.appt-card__photo-error').forEach(function (n) { n.remove(); });
+      skeleton.hidden = true;
+      preview.hidden = true;
+      var err = document.createElement('div');
+      err.className = 'appt-card__photo-error';
+      err.innerHTML = '<svg class="icon"><use href="#icon-image-off"></use></svg>' +
+        '<span>No se pudo cargar la foto</span>' +
+        '<button type="button">Reintentar</button>';
+      err.querySelector('button').addEventListener('click', function () { renderPreview(appt.photoUrl); });
+      frame.appendChild(err);
+    }
+
+    function renderPreview(url) {
+      frame.querySelectorAll('.appt-card__photo-error').forEach(function (n) { n.remove(); });
+      if (!url) { frame.hidden = true; return; }
+      frame.hidden = false;
+      skeleton.hidden = false;
+      preview.hidden = false;
+      preview.classList.remove('is-loaded');
+      preview.onload = function () {
+        skeleton.hidden = true;
+        preview.classList.add('is-loaded');
+      };
+      loadPhotoWithFallback(preview, url, showPhotoError);
+    }
+    renderPreview(appt.photoUrl);
+
+    frame.addEventListener('click', function () {
+      if (appt.photoUrl && preview.classList.contains('is-loaded')) openPhotoLightbox(preview.src);
+    });
 
     var actions = document.createElement('div');
     actions.className = 'appt-card__photo-actions';
@@ -673,8 +785,7 @@
           return;
         }
         appt.photoUrl = res.url || pendingDataUrl;
-        preview.src = appt.photoUrl;
-        preview.hidden = false;
+        renderPreview(appt.photoUrl);
         deleteBtn.hidden = false;
         setUploadIdle();
         flashSaved(wrap);
@@ -697,8 +808,7 @@
             closeConfirmModal();
             if (res.error) { showToast(res.error); return; }
             appt.photoUrl = null;
-            preview.hidden = true;
-            preview.removeAttribute('src');
+            renderPreview(null);
             deleteBtn.hidden = true;
             setUploadIdle();
             flashSaved(wrap);
@@ -713,7 +823,7 @@
 
     actions.appendChild(uploadBtn);
     actions.appendChild(deleteBtn);
-    wrap.appendChild(preview);
+    wrap.appendChild(frame);
     wrap.appendChild(actions);
     wrap.appendChild(input);
     return wrap;

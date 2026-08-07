@@ -70,6 +70,38 @@
     return div.innerHTML;
   }
 
+  // Carga una foto probando varias URLs de Drive antes de rendirse. Google
+  // a veces bloquea o tarda en propagar un formato (p. ej. justo después
+  // de subir la foto) pero no otro — por eso algunas fotos "no cargaban".
+  function loadPhotoWithFallback(imgEl, originalUrl, onFail) {
+    if (imgEl._fallbackHandler) imgEl.removeEventListener('error', imgEl._fallbackHandler);
+
+    var idMatch = String(originalUrl).match(/\/d\/([^/=?&]+)/) || String(originalUrl).match(/[?&]id=([^&=]+)/);
+    var fileId = idMatch ? idMatch[1] : null;
+
+    var candidates = [originalUrl];
+    if (fileId) {
+      ['https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000',
+        'https://lh3.googleusercontent.com/d/' + fileId + '=w1000',
+        'https://drive.google.com/uc?export=view&id=' + fileId
+      ].forEach(function (u) { if (candidates.indexOf(u) === -1) candidates.push(u); });
+    }
+
+    var attempt = 0;
+    function tryNext() {
+      if (attempt >= candidates.length) {
+        imgEl.removeEventListener('error', tryNext);
+        imgEl._fallbackHandler = null;
+        if (onFail) onFail();
+        return;
+      }
+      imgEl.src = candidates[attempt++];
+    }
+    imgEl._fallbackHandler = tryNext;
+    imgEl.addEventListener('error', tryNext);
+    tryNext();
+  }
+
   /* =========================================================
      TOP BAR — mensajes rotativos
      ========================================================= */
@@ -722,10 +754,31 @@
         var caption = escapeHtml(work.service) + ' — ' + escapeHtml(work.style);
         var item = document.createElement('figure');
         item.className = 'work-gallery__item';
-        item.innerHTML =
-          '<img src="' + escapeHtml(work.url) + '" alt="Trabajo reciente: ' + caption + '" loading="lazy">' +
-          '<figcaption class="work-gallery__caption">' + caption + '</figcaption>';
+
+        var skeleton = document.createElement('div');
+        skeleton.className = 'work-gallery__skeleton';
+
+        var img = document.createElement('img');
+        img.alt = 'Trabajo reciente: ' + caption;
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.onload = function () {
+          skeleton.remove();
+          img.classList.add('is-loaded');
+        };
+
+        var figcaption = document.createElement('figcaption');
+        figcaption.className = 'work-gallery__caption';
+        figcaption.textContent = work.service + ' — ' + work.style;
+
+        item.appendChild(img);
+        item.appendChild(skeleton);
+        item.appendChild(figcaption);
         gallery.appendChild(item);
+
+        // Si tampoco cargan los formatos alternos, no dejamos un hueco
+        // roto en la vitrina pública: se quita esa foto sola.
+        loadPhotoWithFallback(img, work.url, function () { item.remove(); });
 
         if (prefersReducedMotion) {
           item.classList.add('is-visible');
