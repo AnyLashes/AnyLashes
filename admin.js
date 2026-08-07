@@ -137,14 +137,37 @@
   /* =========================================================
      API
      ========================================================= */
+  var REQUEST_TIMEOUT_MS = 20000;
+
+  // fetch() no tiene límite de tiempo por sí solo: si el servidor o la red
+  // se cuelgan, la petición se queda esperando para siempre y cualquier
+  // botón que dependa de ella ("Guardando…") se queda pegado sin forma de
+  // salir. Este wrapper la corta a los 20s y la convierte en un error
+  // normal, para que el botón siempre se pueda volver a intentar.
+  function fetchWithTimeout(url, options) {
+    var controller = new AbortController();
+    var timedOut = false;
+    var timer = setTimeout(function () { timedOut = true; controller.abort(); }, REQUEST_TIMEOUT_MS);
+    options = options || {};
+    options.signal = controller.signal;
+    return fetch(url, options).then(function (r) {
+      clearTimeout(timer);
+      return r;
+    }).catch(function (err) {
+      clearTimeout(timer);
+      if (timedOut) throw new Error('La solicitud tardó demasiado. Revisa tu internet e intenta de nuevo.');
+      throw err;
+    });
+  }
+
   function apiGet(params) {
     var query = Object.keys(params)
       .map(function (k) { return k + '=' + encodeURIComponent(params[k]); })
       .join('&');
-    return fetch(API_URL + '?' + query).then(function (r) { return r.json(); });
+    return fetchWithTimeout(API_URL + '?' + query).then(function (r) { return r.json(); });
   }
   function apiPost(payload) {
-    return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) })
+    return fetchWithTimeout(API_URL, { method: 'POST', body: JSON.stringify(payload) })
       .then(function (r) { return r.json(); });
   }
   function isAuthError(res) {
@@ -1019,6 +1042,12 @@
   var scheduleFeedback = document.getElementById('scheduleFeedback');
 
   var currentSlots = [];
+  // Se enciende cuando hay horarios agregados/quitados/generados que
+  // todavía no se han guardado — si además el usuario intenta cambiar de
+  // día (o cerrar la pestaña) sin guardar, avisamos antes de perder ese
+  // trabajo en vez de descartarlo en silencio.
+  var scheduleDirty = false;
+  var lastLoadedScheduleDate = null;
 
   function renderScheduleList() {
     if (!scheduleList) return;
@@ -1037,6 +1066,7 @@
       chip.innerHTML = escapeHtml(time) + ' <button type="button" aria-label="Quitar ' + escapeHtml(time) + '"><svg class="icon"><use href="#icon-close"></use></svg></button>';
       chip.querySelector('button').addEventListener('click', function () {
         currentSlots = currentSlots.filter(function (t) { return t !== time; });
+        scheduleDirty = true;
         renderScheduleList();
       });
       scheduleList.appendChild(chip);
@@ -1045,8 +1075,10 @@
 
   function loadDaySchedule(dateStr) {
     if (scheduleFeedback) scheduleFeedback.textContent = '';
+    scheduleDirty = false;
     if (!dateStr) {
       currentSlots = [];
+      lastLoadedScheduleDate = null;
       renderScheduleList();
       return;
     }
@@ -1055,6 +1087,8 @@
     authApiGet({ action: 'schedule', dateFrom: dateStr, dateTo: dateStr }).then(function (res) {
       var schedule = (res && res.schedule) || {};
       currentSlots = (schedule[dateStr] || []).slice();
+      lastLoadedScheduleDate = dateStr;
+      scheduleDirty = false;
       renderScheduleList();
     }).catch(function () {
       scheduleList.innerHTML = '<p class="slots__empty slots__empty--error">No pudimos cargar el horario. Intenta de nuevo.</p>';
@@ -1065,9 +1099,34 @@
     scheduleDateInput.min = todayISO();
     scheduleDateInput.value = todayISO();
     scheduleDateInput.addEventListener('change', function () {
-      loadDaySchedule(scheduleDateInput.value);
+      var newDate = scheduleDateInput.value;
+      if (scheduleDirty) {
+        var previousDate = lastLoadedScheduleDate;
+        scheduleDateInput.value = previousDate || todayISO(); // no cambia la vista hasta confirmar
+        openConfirmModal({
+          title: '¿Cambiar de día sin guardar?',
+          text: 'Tienes horarios agregados que todavía no guardaste' +
+            (previousDate ? ' para el ' + formatDateEs(previousDate) : '') +
+            '. Si cambias de día ahora, se perderán.',
+          confirmLabel: 'Sí, cambiar de día',
+          onConfirm: function () {
+            closeConfirmModal();
+            scheduleDateInput.value = newDate;
+            loadDaySchedule(newDate);
+          }
+        });
+        return;
+      }
+      loadDaySchedule(newDate);
     });
   }
+
+  window.addEventListener('beforeunload', function (e) {
+    if (scheduleDirty) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
 
   if (addSlotBtn) {
     addSlotBtn.addEventListener('click', function () {
@@ -1078,6 +1137,7 @@
       if (!manualTime.value) return;
       if (currentSlots.indexOf(manualTime.value) === -1) {
         currentSlots.push(manualTime.value);
+        scheduleDirty = true;
         renderScheduleList();
       }
       manualTime.value = '';
@@ -1106,6 +1166,7 @@
         var t = minutesToTime(m);
         if (currentSlots.indexOf(t) === -1) currentSlots.push(t);
       }
+      scheduleDirty = true;
       renderScheduleList();
       if (scheduleFeedback) scheduleFeedback.textContent = 'Horarios generados. Revisa la lista y guarda.';
     });
@@ -1141,6 +1202,8 @@
           if (scheduleFeedback) scheduleFeedback.textContent = res.error;
           return;
         }
+        scheduleDirty = false;
+        lastLoadedScheduleDate = dateValue;
         if (scheduleFeedback) scheduleFeedback.textContent = 'Horario guardado ✓';
         showToast('Horario del ' + formatDateEs(dateValue) + ' guardado.');
 

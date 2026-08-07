@@ -28,17 +28,40 @@
     return tab;
   }
 
+  var REQUEST_TIMEOUT_MS = 20000;
+
+  // fetch() no tiene límite de tiempo por sí solo: si el servidor o la red
+  // se cuelgan, la petición se queda esperando para siempre y cualquier
+  // botón que dependa de ella ("Enviando…") se queda pegado sin forma de
+  // salir. Este wrapper la corta a los 20s y la convierte en un error
+  // normal, para que siempre se pueda reintentar.
+  function fetchWithTimeout(url, options) {
+    var controller = new AbortController();
+    var timedOut = false;
+    var timer = setTimeout(function () { timedOut = true; controller.abort(); }, REQUEST_TIMEOUT_MS);
+    options = options || {};
+    options.signal = controller.signal;
+    return fetch(url, options).then(function (r) {
+      clearTimeout(timer);
+      return r;
+    }).catch(function (err) {
+      clearTimeout(timer);
+      if (timedOut) throw new Error('La solicitud tardó demasiado. Revisa tu internet e intenta de nuevo.');
+      throw err;
+    });
+  }
+
   function apiGet(params) {
     var query = Object.keys(params)
       .map(function (k) { return k + '=' + encodeURIComponent(params[k]); })
       .join('&');
-    return fetch(API_URL + '?' + query).then(function (r) { return r.json(); });
+    return fetchWithTimeout(API_URL + '?' + query).then(function (r) { return r.json(); });
   }
 
   function apiPost(payload) {
     // Sin header Content-Type a propósito: así el navegador la trata como
     // petición "simple" y evita el preflight OPTIONS que Apps Script no maneja.
-    return fetch(API_URL, { method: 'POST', body: JSON.stringify(payload) })
+    return fetchWithTimeout(API_URL, { method: 'POST', body: JSON.stringify(payload) })
       .then(function (r) { return r.json(); });
   }
 
