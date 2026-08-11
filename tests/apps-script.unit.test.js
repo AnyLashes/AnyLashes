@@ -42,7 +42,7 @@ test('extractDriveFileId_ / driveViewUrl_ extraen y reconstruyen el id sin impor
   assert.equal(env.extractDriveFileId_('https://drive.google.com/uc?export=view&id=ABC123'), 'ABC123');
   assert.equal(env.extractDriveFileId_('https://lh3.googleusercontent.com/d/XYZ789=w1000'), 'XYZ789');
   assert.equal(env.extractDriveFileId_(null), null);
-  assert.equal(env.driveViewUrl_('ABC123'), 'https://lh3.googleusercontent.com/d/ABC123=w1000');
+  assert.equal(env.driveViewUrl_('ABC123'), 'https://lh3.googleusercontent.com/d/ABC123=w700');
 });
 
 test('sha256 calcula el hash SHA-256 estándar en hexadecimal (vector de prueba conocido)', () => {

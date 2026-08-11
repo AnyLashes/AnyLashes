@@ -95,8 +95,8 @@ function loadPhotoWithFallback(imgEl, originalUrl, onFail) {
 
   var candidates = [originalUrl];
   if (fileId) {
-    ['https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000',
-      'https://lh3.googleusercontent.com/d/' + fileId + '=w1000',
+    ['https://drive.google.com/thumbnail?id=' + fileId + '&sz=w700',
+      'https://lh3.googleusercontent.com/d/' + fileId + '=w700',
       'https://drive.google.com/uc?export=view&id=' + fileId
     ].forEach(function (u) { if (candidates.indexOf(u) === -1) candidates.push(u); });
   }
