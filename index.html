@@ -5,6 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AnyLashes | Tu mirada, nuestra prioridad</title>
 <meta name="description" content="AnyLashes — Extensiones de pestañas con diseño personalizado. Realza tu mirada con un acabado natural o glam, hecho a tu medida. Agenda tu cita por WhatsApp.">
+<meta name="robots" content="index, follow">
+<!--
+  Falta <link rel="canonical"> y las etiquetas og:url / twitter:url: las
+  tres necesitan la URL absoluta de producción (https://tu-dominio/...), que
+  no existe en ningún archivo de este proyecto. Agrégalas en cuanto el sitio
+  tenga su dominio final, con el mismo patrón que og:title/og:description
+  de aquí abajo. Lo mismo aplica a sitemap.xml (requiere URLs absolutas).
+-->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AnyLashes">
+<meta property="og:locale" content="es_MX">
+<meta property="og:title" content="AnyLashes | Tu mirada, nuestra prioridad">
+<meta property="og:description" content="Extensiones de pestañas con diseño personalizado. Realza tu mirada con un acabado natural o glam, hecho a tu medida. Agenda tu cita por WhatsApp.">
+<meta property="og:image" content="assets/AnyLashes-logo-HD-fondo-blanco.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AnyLashes | Tu mirada, nuestra prioridad">
+<meta name="twitter:description" content="Extensiones de pestañas con diseño personalizado. Realza tu mirada con un acabado natural o glam, hecho a tu medida. Agenda tu cita por WhatsApp.">
+<meta name="twitter:image" content="assets/AnyLashes-logo-HD-fondo-blanco.png">
 <link rel="icon" type="image/png" href="assets/AnyLashes-logo-HD-transparente.png">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -14,8 +32,37 @@
 <meta name="apple-mobile-web-app-title" content="AnyLashes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!--
+  La hoja de Google Fonts se carga sin bloquear el render: se marca como
+  "print" (así el navegador la baja con prioridad baja) y al cargar se
+  cambia a "all" con onload. Antes era un <link rel="stylesheet"> normal y
+  Lighthouse la marcaba como render-blocking (~840ms en la corrida móvil).
+  El <noscript> mantiene la tipografía si el usuario tiene JS desactivado.
+-->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="styles.css">
+<!--
+  Datos estructurados con solo la información real que existe en este
+  sitio (nombre, WhatsApp, Instagram, rango de precios de los servicios
+  listados en la sección "Servicios destacados"). No se incluyen address,
+  geo ni openingHoursSpecification porque no hay una dirección física ni un
+  horario fijo publicado en el proyecto (la atención es "con cita previa").
+  Agrégalos aquí si más adelante existen esos datos reales.
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BeautySalon",
+  "name": "AnyLashes",
+  "description": "Extensiones de pestañas con diseño personalizado. Realza tu mirada con un acabado natural o glam, hecho a tu medida.",
+  "image": "assets/AnyLashes-logo-HD-fondo-blanco.png",
+  "telephone": "+52 232 176 5311",
+  "priceRange": "$150-$800",
+  "sameAs": ["https://instagram.com/anylashes90"]
+}
+</script>
 </head>
 <body>
 
@@ -64,7 +111,7 @@
 <header class="header" id="siteHeader">
   <div class="container header__inner">
     <a href="#inicio" class="header__brand" aria-label="AnyLashes — inicio">
-      <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="header__logo">
+      <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="header__logo" width="600" height="477" fetchpriority="high">
     </a>
 
     <nav class="nav" id="mainNav" aria-label="Navegación principal">
@@ -93,9 +140,9 @@
      backdrop-filter, que en móvil "atrapa" a los elementos position:fixed
      hijos suyos y les impide cubrir toda la pantalla. -->
 <div class="mobile-menu__backdrop" id="mobileMenuBackdrop"></div>
-<div class="mobile-menu" id="mobileMenu">
+<div class="mobile-menu" id="mobileMenu" role="dialog" aria-modal="true" aria-label="Menú de navegación">
   <div class="mobile-menu__head">
-    <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="mobile-menu__logo">
+    <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="mobile-menu__logo" width="600" height="477">
     <button class="hamburger" id="closeMenuBtn" aria-label="Cerrar menú">
       <svg class="icon"><use href="#icon-close"></use></svg>
     </button>
@@ -255,7 +302,7 @@
         </article>
 
         <article class="card card--service reveal">
-          <div class="card__media"><img src="assets/Hibrido.png" alt="Híbrido de pestañas" loading="lazy"></div>
+          <div class="card__media"><img src="assets/Hibrido.jpg" alt="Híbrido de pestañas" loading="lazy"></div>
           <div class="card__body">
             <h3 class="card__title">Híbrido</h3>
             <p class="card__text">Algo natural, pero con volumen más definido.</p>
@@ -281,7 +328,7 @@
         </article>
 
         <article class="card card--service reveal">
-          <div class="card__media"><img src="assets/Wyspy.png" alt="Efecto wispy de pestañas" loading="lazy"></div>
+          <div class="card__media"><img src="assets/Wyspy.jpg" alt="Efecto wispy de pestañas" loading="lazy"></div>
           <div class="card__body">
             <h3 class="card__title">Efecto wispy</h3>
             <p class="card__text">Ojos coquetos, como si tuvieras las pestañas mojadas.</p>
@@ -294,7 +341,7 @@
         </article>
 
         <article class="card card--service reveal">
-          <div class="card__media"><img src="assets/Hawaino.png" alt="Volumen hawaiano de pestañas" loading="lazy"></div>
+          <div class="card__media"><img src="assets/Hawaino.jpg" alt="Volumen hawaiano de pestañas" loading="lazy"></div>
           <div class="card__body">
             <h3 class="card__title">Volumen hawaiano</h3>
             <p class="card__text">Ligero, suave y esponjoso: volumen natural y hermoso.</p>
@@ -307,7 +354,7 @@
         </article>
 
         <article class="card card--service reveal">
-          <div class="card__media"><img src="assets/Griego.png" alt="Volumen griego 3D de pestañas" loading="lazy"></div>
+          <div class="card__media"><img src="assets/Griego.jpg" alt="Volumen griego 3D de pestañas" loading="lazy"></div>
           <div class="card__body">
             <h3 class="card__title">Volumen griego (3D)</h3>
             <p class="card__text">Look abierto y estilizado, ideal para resaltar tus ojos.</p>
@@ -320,7 +367,7 @@
         </article>
 
         <article class="card card--service reveal">
-          <div class="card__media"><img src="assets/Brasileño.png" alt="Volumen brasileño 4D de pestañas" loading="lazy"></div>
+          <div class="card__media"><img src="assets/Brasileño.jpg" alt="Volumen brasileño 4D de pestañas" loading="lazy"></div>
           <div class="card__body">
             <h3 class="card__title">Volumen brasileño (4D)</h3>
             <p class="card__text">Dramático y sofisticado: alargamiento más marcado y con más volumen.</p>
@@ -372,7 +419,7 @@
         </article>
 
         <article class="card card--service reveal">
-          <div class="card__media"><img src="assets/Retoque.png" alt="Retoque de extensiones de pestañas" loading="lazy"></div>
+          <div class="card__media"><img src="assets/Retoque.jpg" alt="Retoque de extensiones de pestañas" loading="lazy"></div>
           <div class="card__body">
             <h3 class="card__title">Retoque</h3>
             <p class="card__text">Mantén tu diseño impecable rellenando el crecimiento natural.</p>
@@ -385,7 +432,7 @@
         </article>
 
         <article class="card card--service reveal">
-          <div class="card__media"><img src="assets/retirar.png"" alt="Retiro seguro de extensiones de pestañas" loading="lazy"></div>
+          <div class="card__media"><img src="assets/retirar.jpg" alt="Retiro seguro de extensiones de pestañas" loading="lazy"></div>
           <div class="card__body">
             <h3 class="card__title">Retiro seguro</h3>
             <p class="card__text">Removemos las extensiones cuidando tu pestaña natural.</p>
@@ -555,27 +602,27 @@
 
       <div class="gallery">
         <figure class="gallery__item reveal">
-          <img src="assets/Antesvd.png" alt="Antes y después de extensiones de pestañas" loading="lazy">
+          <img src="assets/Antesvd.jpg" alt="Antes y después de extensiones de pestañas" loading="lazy">
           <figcaption>Antes y después</figcaption>
         </figure>
         <figure class="gallery__item reveal">
-          <img src="assets/Natural.png" alt="Resultado efecto natural" loading="lazy">
+          <img src="assets/Natural.jpg" alt="Resultado efecto natural" loading="lazy">
           <figcaption>Natural</figcaption>
         </figure>
         <figure class="gallery__item reveal">
-          <img src="assets/NaturalVol.png" alt="Resultado volumen" loading="lazy">
+          <img src="assets/NaturalVol.jpg" alt="Resultado volumen" loading="lazy">
           <figcaption>Volumen</figcaption>
         </figure>
         <figure class="gallery__item reveal">
-          <img src="assets/Pestañas+Cejas.png" alt="Tecnica Clasica + Planchado de cejas" loading="lazy">
+          <img src="assets/Pestañas+Cejas.jpg" alt="Tecnica Clasica + Planchado de cejas" loading="lazy">
           <figcaption>Tecnica Clasica + Planchado de cejas</figcaption>
         </figure>
         <figure class="gallery__item reveal">
-          <img src="assets/CatEye.png" alt="Resultado estilo cat eye" loading="lazy">
+          <img src="assets/CatEye.jpg" alt="Resultado estilo cat eye" loading="lazy">
           <figcaption>Cat Eye</figcaption>
         </figure>
         <figure class="gallery__item reveal">
-          <img src="assets/Wys.png" alt="Resultado estilo wispy" loading="lazy">
+          <img src="assets/Wys.jpg" alt="Resultado estilo wispy" loading="lazy">
           <figcaption>Wispy</figcaption>
         </figure>
       </div>
@@ -700,6 +747,15 @@
         </div>
 
         <form class="booking__form" id="bookingForm" novalidate>
+          <!-- Honeypot anti-spam: invisible y no enfocable para una persona
+               real (aria-hidden + tabindex="-1" + oculto por CSS), pero un
+               bot que llena todos los campos del formulario sin más lo
+               deja lleno. El servidor descarta silenciosamente cualquier
+               envío que llegue con este campo lleno. -->
+          <div class="field" aria-hidden="true" style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;">
+            <label for="bookingWebsite">Deja este campo vacío</label>
+            <input type="text" id="bookingWebsite" name="website" tabindex="-1" autocomplete="off">
+          </div>
           <div class="field">
             <label for="bookingService">Selecciona servicio</label>
             <select id="bookingService" name="service">
@@ -884,7 +940,7 @@
 <footer class="footer" id="contacto">
   <div class="container footer__inner">
     <div class="footer__brand">
-      <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="footer__logo">
+      <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="footer__logo" width="600" height="477" loading="lazy">
       <p class="footer__tagline">Tu mirada, nuestra prioridad</p>
       <div class="footer__social">
         <a href="#" class="js-whatsapp-cta footer__social-link" aria-label="WhatsApp AnyLashes">
@@ -935,6 +991,7 @@
   <svg class="icon"><use href="#icon-arrow-right"></use></svg>
 </button>
 
+<script src="common.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

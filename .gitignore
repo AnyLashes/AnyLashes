@@ -4,3 +4,29 @@ apps-script-code.gs
 
 # Configuración local del editor/herramientas, no forma parte del sitio.
 .claude/
+
+# Dependencias de desarrollo (Playwright, Lighthouse) — se reinstalan con
+# "npm install", no hace falta subirlas.
+node_modules/
+
+# Artefactos de pruebas E2E y reportes de Lighthouse: se regeneran cada vez
+# que se corren, y los videos/trazas pesan — no deben vivir en el repo.
+test-results/
+playwright-report/
+lighthouse-reports/
+blob-report/
+playwright/.cache/
+
+# Capturas de evidencia con datos de prueba (scripts/capture-evidence.js):
+# son para revisar en el momento, no contenido real del sitio.
+evidence/
+
+# Variables de entorno / secretos locales — nunca deben subirse.
+.env
+.env.*
+!.env.example
+
+# Basura del sistema operativo.
+Thumbs.db
+desktop.ini
+.DS_Store

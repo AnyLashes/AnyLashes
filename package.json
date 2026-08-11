@@ -1,0 +1,18 @@
+{
+  "name": "anylashes",
+  "private": true,
+  "description": "Sitio público, sistema de citas y panel de administración de AnyLashes. Sitio estático (sin build): el backend vive en Google Apps Script (apps-script-code.gs) y no se despliega desde aquí.",
+  "scripts": {
+    "test": "node --test",
+    "serve": "node scripts/static-server.js 4173",
+    "test:e2e": "playwright test",
+    "test:e2e:chrome": "playwright test --project=desktop-1440x900 --project=laptop-1366x768 --project=tablet-768x1024 --project=mobile-390x844 --project=mobile-360x800",
+    "lighthouse": "node scripts/run-lighthouse.js",
+    "verify": "node scripts/verify.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "chrome-launcher": "^1.2.1",
+    "lighthouse": "^13.4.1"
+  }
+}

@@ -57,7 +57,7 @@ body { background: var(--color-pearl); }
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-gold-light);
   background: var(--color-gold-soft);
-  color: var(--color-gold-deep);
+  color: var(--color-gold-deep-on-soft);
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
@@ -146,7 +146,7 @@ body { background: var(--color-pearl); }
   padding: 8px 8px 8px 14px;
   border-radius: var(--radius-pill);
   background: var(--color-gold-soft);
-  color: var(--color-gold-deep);
+  color: var(--color-gold-deep-on-soft);
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -201,7 +201,7 @@ body { background: var(--color-pearl); }
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: var(--color-muted-2);
+  color: var(--color-muted); /* --color-muted-2 no cumple 4.5:1 de contraste para texto */
   margin-bottom: var(--space-2);
 }
 
@@ -334,7 +334,7 @@ body { background: var(--color-pearl); }
   padding: 4px 11px;
   border-radius: var(--radius-pill);
   background: var(--color-gold-soft);
-  color: var(--color-gold-deep);
+  color: var(--color-gold-deep-on-soft);
 }
 .appt-card.is-cancelled .appt-card__status { background: var(--color-beige); color: var(--color-muted); }
 .appt-card.is-completed .appt-card__status { background: var(--color-black); color: var(--color-white); }
@@ -523,6 +523,63 @@ body { background: var(--color-pearl); }
 .modal-card__text { font-size: 0.92rem; color: var(--color-text-soft); margin-bottom: var(--space-6); }
 .modal-card__actions { display: flex; gap: var(--space-3); }
 .modal-card__actions .btn { flex: 1; }
+
+/* Variante del modal para el formulario de "Nueva cita"/editar: más ancho,
+   alineado a la izquierda y con scroll propio si no cabe en pantallas
+   bajas (celular en horizontal, laptops de 768px de alto). */
+.modal-card--form {
+  max-width: 640px;
+  text-align: left;
+  max-height: calc(100vh - var(--space-8));
+  max-height: calc(100dvh - var(--space-8));
+  overflow-y: auto;
+}
+.appt-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.appt-form__field--full { grid-column: 1 / -1; }
+.appt-form__grid textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-ivory);
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  color: var(--color-ink);
+  resize: vertical;
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+.appt-form__grid textarea:focus {
+  outline: none;
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(176, 141, 87, 0.18);
+}
+.appt-form__feedback {
+  font-size: 0.85rem;
+  color: #963229;
+  min-height: 18px;
+  margin-bottom: var(--space-4);
+}
+
+/* Encabezado del panel de citas del día, con el botón "Nueva cita" */
+.day-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.day-panel__head .day-panel__title { margin-bottom: 0; }
+.day-panel__head .btn { flex-shrink: 0; }
+
+@media (max-width: 640px) {
+  .appt-form__grid { grid-template-columns: 1fr; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .modal-overlay, .modal-card { transition: none; }
@@ -816,4 +873,14 @@ body { background: var(--color-pearl); }
 @media (max-width: 400px) {
   .calendar-day { font-size: 0.72rem; }
   .schedule-generate__row .field--sm { flex-basis: 100%; }
+}
+
+/* Evita el auto-zoom de iOS Safari al enfocar campos con font-size < 16px */
+@media (max-width: 900px) {
+  .field--sm input,
+  .field--sm select,
+  .schedule-manual__row input,
+  .appt-card__note-editor textarea {
+    font-size: 16px;
+  }
 }

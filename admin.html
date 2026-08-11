@@ -14,7 +14,10 @@
 <meta name="apple-mobile-web-app-title" content="Panel AnyLashes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Carga sin bloquear el render — ver el comentario equivalente en index.html. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="admin.css">
 </head>
@@ -49,7 +52,7 @@
 <header class="admin-header">
   <div class="admin-header__inner">
     <a href="index.html" class="admin-header__brand">
-      <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="admin-header__logo">
+      <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="admin-header__logo" width="600" height="477" fetchpriority="high">
       <span>Panel de administración</span>
     </a>
     <div class="admin-header__actions">
@@ -151,7 +154,13 @@
       </section>
 
       <section class="day-panel">
-        <h2 class="day-panel__title" id="dayPanelTitle">Selecciona un día en el calendario</h2>
+        <div class="day-panel__head">
+          <h2 class="day-panel__title" id="dayPanelTitle">Selecciona un día en el calendario</h2>
+          <button type="button" class="btn btn--primary btn--sm" id="newApptBtn">
+            <svg class="icon icon--sm"><use href="#icon-edit"></use></svg>
+            Nueva cita
+          </button>
+        </div>
         <div class="day-panel__list" id="dayPanelList">
           <p class="slots__empty">Haz clic en cualquier día para ver sus citas.</p>
         </div>
@@ -167,7 +176,7 @@
   <div class="login-screen__decor login-screen__decor--2"></div>
 
   <div class="login-screen__panel">
-    <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="login-screen__logo">
+    <img src="assets/AnyLashes-logo-HD-transparente.png" alt="AnyLashes" class="login-screen__logo" width="600" height="477">
     <p class="login-screen__tagline">Tu mirada, nuestra prioridad</p>
 
     <div class="login-screen__divider"><svg class="icon icon--sm"><use href="#icon-sparkle"></use></svg></div>
@@ -197,9 +206,113 @@
   </div>
 </div>
 
+<!-- Modal: crear cita manual / editar y reprogramar (mismo modal para los
+     dos flujos — el título y el botón cambian según el caso).
+     Los <option> de servicio/estilo deben coincidir exactamente con los de
+     index.html y con SERVICE_DURATIONS/VALID_STYLES en apps-script-code.gs. -->
+<div class="modal-overlay" id="apptFormModal">
+  <div class="modal-card modal-card--form" role="dialog" aria-modal="true" aria-labelledby="apptFormTitle">
+    <h3 class="modal-card__title" id="apptFormTitle">Nueva cita</h3>
+
+    <form id="apptForm" novalidate>
+      <input type="hidden" id="apptFormId">
+
+      <div class="appt-form__grid">
+        <div class="field">
+          <label for="apptFormName">Nombre del cliente</label>
+          <input type="text" id="apptFormName" autocomplete="off" maxlength="80">
+          <span class="field__error" id="apptFormErrorName">Escribe el nombre del cliente.</span>
+        </div>
+
+        <div class="field">
+          <label for="apptFormPhone">Teléfono (WhatsApp)</label>
+          <input type="tel" id="apptFormPhone" inputmode="numeric" placeholder="10 dígitos" autocomplete="off">
+          <span class="field__error" id="apptFormErrorPhone">Ingresa un número válido a 10 dígitos.</span>
+        </div>
+
+        <div class="field">
+          <label for="apptFormEmail">Correo (opcional)</label>
+          <input type="email" id="apptFormEmail" autocomplete="off" maxlength="120">
+          <span class="field__error" id="apptFormErrorEmail">Ese correo no es válido.</span>
+        </div>
+
+        <div class="field">
+          <label for="apptFormStatus">Estado</label>
+          <select id="apptFormStatus">
+            <option value="confirmed">Confirmada</option>
+            <option value="completed">Concluida</option>
+            <option value="cancelled">Cancelada</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="apptFormService">Servicio</label>
+          <select id="apptFormService">
+            <option value="">Elige un servicio</option>
+            <option value="Técnica clásica">Técnica clásica</option>
+            <option value="Híbrido">Híbrido</option>
+            <option value="Efecto rímel">Efecto rímel</option>
+            <option value="Efecto wispy">Efecto wispy</option>
+            <option value="Volumen hawaiano">Volumen hawaiano</option>
+            <option value="Volumen griego (3D)">Volumen griego (3D)</option>
+            <option value="Volumen brasileño (4D)">Volumen brasileño (4D)</option>
+            <option value="Volumen egipcio (5D)">Volumen egipcio (5D)</option>
+            <option value="Mega volumen">Mega volumen</option>
+            <option value="Planchado de cejas y depilación">Planchado de cejas y depilación</option>
+            <option value="Retoque">Retoque</option>
+            <option value="Retiro seguro">Retiro seguro</option>
+          </select>
+          <span class="field__error" id="apptFormErrorService">Selecciona un servicio válido.</span>
+        </div>
+
+        <div class="field">
+          <label for="apptFormStyle">Estilo</label>
+          <select id="apptFormStyle">
+            <option value="">Elige un estilo</option>
+            <option value="Natural Soft">Natural Soft</option>
+            <option value="Ojos de muñeca">Ojos de muñeca</option>
+            <option value="Cat Eye">Cat Eye</option>
+            <option value="Wispy Look">Wispy Look</option>
+            <option value="Doll Eye">Doll Eye</option>
+            <option value="Volumen Elegante">Volumen Elegante</option>
+          </select>
+          <span class="field__error" id="apptFormErrorStyle">Selecciona un estilo válido.</span>
+        </div>
+
+        <div class="field">
+          <label for="apptFormDate">Fecha</label>
+          <input type="date" id="apptFormDate">
+          <span class="field__error" id="apptFormErrorDate">Selecciona una fecha.</span>
+        </div>
+
+        <div class="field appt-form__field--full">
+          <label>Hora</label>
+          <div class="slots" id="apptFormSlots">
+            <p class="slots__empty">Elige primero servicio y fecha para ver los horarios disponibles.</p>
+          </div>
+          <input type="hidden" id="apptFormTime">
+          <span class="field__error" id="apptFormErrorTime">Selecciona un horario disponible.</span>
+        </div>
+
+        <div class="field appt-form__field--full">
+          <label for="apptFormNotes">Notas internas (opcional)</label>
+          <textarea id="apptFormNotes" rows="3" maxlength="500"></textarea>
+        </div>
+      </div>
+
+      <p class="appt-form__feedback" id="apptFormFeedback" aria-live="polite"></p>
+
+      <div class="modal-card__actions">
+        <button type="button" class="btn btn--ghost" id="apptFormCancelBtn">Cancelar</button>
+        <button type="submit" class="btn btn--primary" id="apptFormSubmitBtn">Guardar cita</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Modal de confirmación genérico (se reusa para cancelar cita y eliminar foto) -->
 <div class="modal-overlay" id="confirmModal">
-  <div class="modal-card">
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle" aria-describedby="confirmModalText">
     <div class="modal-card__icon"><svg class="icon"><use href="#icon-ban"></use></svg></div>
     <h3 class="modal-card__title" id="confirmModalTitle">¿Confirmar?</h3>
     <p class="modal-card__text" id="confirmModalText"></p>
@@ -211,7 +324,7 @@
 </div>
 
 <!-- Lightbox: ampliar la foto de un trabajo con un toque -->
-<div class="photo-lightbox" id="photoLightbox">
+<div class="photo-lightbox" id="photoLightbox" role="dialog" aria-modal="true" aria-label="Foto ampliada">
   <button type="button" class="photo-lightbox__close" id="photoLightboxClose" aria-label="Cerrar">
     <svg class="icon"><use href="#icon-close"></use></svg>
   </button>
@@ -224,6 +337,7 @@
   <svg class="icon"><use href="#icon-arrow-right"></use></svg>
 </button>
 
+<script src="common.js"></script>
 <script src="admin.js"></script>
 </body>
 </html>

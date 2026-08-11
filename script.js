@@ -6,123 +6,9 @@
      Verifica el código de país del número antes de publicar.
      ========================================================= */
   var WHATSAPP_NUMBER = '522321765311'; // 52 = México + 2321765311
-  var API_URL = 'https://script.google.com/macros/s/AKfycby_dX7NN0w20zN7-zN7Yi7Gfoxq8JinteaT2K1fwNud8dLtTneHV7QDHEftP-Fidl9W_w/exec';
-  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  var MONTHS_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
   function buildWhatsAppUrl(message, number) {
     return 'https://wa.me/' + (number || WHATSAPP_NUMBER) + '?text=' + encodeURIComponent(message);
-  }
-
-  // Abre una pestaña en blanco de forma síncrona (dentro del gesto del
-  // usuario) para redirigirla después de una respuesta async sin que el
-  // navegador la bloquee como pop-up.
-  function openPendingTab() {
-    var tab = window.open('about:blank', '_blank');
-    if (tab) {
-      try {
-        tab.document.write('<title>Abriendo WhatsApp…</title><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;color:#6E665D;">Redirigiendo a WhatsApp…</body>');
-      } catch (e) { /* noop */ }
-    }
-    return tab;
-  }
-
-  var REQUEST_TIMEOUT_MS = 20000;
-
-  // fetch() no tiene límite de tiempo por sí solo: si el servidor o la red
-  // se cuelgan, la petición se queda esperando para siempre y cualquier
-  // botón que dependa de ella ("Enviando…") se queda pegado sin forma de
-  // salir. Este wrapper la corta a los 20s y la convierte en un error
-  // normal, para que siempre se pueda reintentar.
-  function fetchWithTimeout(url, options) {
-    var controller = new AbortController();
-    var timedOut = false;
-    var timer = setTimeout(function () { timedOut = true; controller.abort(); }, REQUEST_TIMEOUT_MS);
-    options = options || {};
-    options.signal = controller.signal;
-    return fetch(url, options).then(function (r) {
-      clearTimeout(timer);
-      return r;
-    }).catch(function (err) {
-      clearTimeout(timer);
-      if (timedOut) throw new Error('La solicitud tardó demasiado. Revisa tu internet e intenta de nuevo.');
-      throw err;
-    });
-  }
-
-  function apiGet(params) {
-    var query = Object.keys(params)
-      .map(function (k) { return k + '=' + encodeURIComponent(params[k]); })
-      .join('&');
-    return fetchWithTimeout(API_URL + '?' + query).then(function (r) { return r.json(); });
-  }
-
-  function apiPost(payload) {
-    // Sin header Content-Type a propósito: así el navegador la trata como
-    // petición "simple" y evita el preflight OPTIONS que Apps Script no maneja.
-    return fetchWithTimeout(API_URL, { method: 'POST', body: JSON.stringify(payload) })
-      .then(function (r) { return r.json(); });
-  }
-
-  function formatDateEs(dateStr) {
-    var parts = dateStr.split('-');
-    if (parts.length !== 3) return dateStr;
-    var day = parseInt(parts[2], 10);
-    var month = MONTHS_ES[parseInt(parts[1], 10) - 1];
-    return day + ' de ' + month + ' de ' + parts[0];
-  }
-
-  function todayISO() {
-    var d = new Date();
-    var offset = d.getTimezoneOffset();
-    var local = new Date(d.getTime() - offset * 60000);
-    return local.toISOString().slice(0, 10);
-  }
-
-  function nowHHMM() {
-    var d = new Date();
-    var h = ('0' + d.getHours()).slice(-2);
-    var m = ('0' + d.getMinutes()).slice(-2);
-    return h + ':' + m;
-  }
-
-  function escapeHtml(str) {
-    var div = document.createElement('div');
-    div.textContent = str == null ? '' : str;
-    return div.innerHTML;
-  }
-
-  // Carga una foto probando varias URLs de Drive antes de rendirse. Google
-  // a veces bloquea o tarda en propagar un formato (p. ej. justo después
-  // de subir la foto) pero no otro — por eso algunas fotos "no cargaban".
-  function loadPhotoWithFallback(imgEl, originalUrl, onFail) {
-    if (imgEl._fallbackHandler) imgEl.removeEventListener('error', imgEl._fallbackHandler);
-
-    var idMatch = String(originalUrl).match(/\/d\/([^/=?&]+)/) || String(originalUrl).match(/[?&]id=([^&=]+)/);
-    var fileId = idMatch ? idMatch[1] : null;
-
-    var candidates = [originalUrl];
-    if (fileId) {
-      ['https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000',
-        'https://lh3.googleusercontent.com/d/' + fileId + '=w1000',
-        'https://drive.google.com/uc?export=view&id=' + fileId
-      ].forEach(function (u) { if (candidates.indexOf(u) === -1) candidates.push(u); });
-    }
-
-    var attempt = 0;
-    function tryNext() {
-      if (attempt >= candidates.length) {
-        imgEl.removeEventListener('error', tryNext);
-        imgEl._fallbackHandler = null;
-        if (onFail) onFail();
-        return;
-      }
-      imgEl.src = candidates[attempt++];
-    }
-    imgEl._fallbackHandler = tryNext;
-    imgEl.addEventListener('error', tryNext);
-    tryNext();
   }
 
   /* =========================================================
@@ -168,18 +54,36 @@
     var backdrop = document.getElementById('mobileMenuBackdrop');
     if (!hamburgerBtn || !mobileMenu || !backdrop) return;
 
+    var lastFocused = null;
+
+    function focusableItems() {
+      return Array.prototype.slice.call(
+        mobileMenu.querySelectorAll('a[href], button:not([disabled])')
+      );
+    }
+
     function openMenu() {
+      lastFocused = document.activeElement;
       mobileMenu.classList.add('is-open');
       backdrop.classList.add('is-open');
       hamburgerBtn.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
+      // Mueve el foco adentro del menú: si no, un usuario de teclado que
+      // sigue con Tab cae en enlaces del fondo que están tapados visualmente.
+      var items = focusableItems();
+      if (items.length) items[0].focus();
     }
 
     function closeMenu() {
+      if (!mobileMenu.classList.contains('is-open')) return;
       mobileMenu.classList.remove('is-open');
       backdrop.classList.remove('is-open');
       hamburgerBtn.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
+      // Regresa el foco a donde estaba (normalmente el botón de hamburguesa)
+      // para que un usuario de teclado no lo pierda de vista.
+      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+      lastFocused = null;
     }
 
     hamburgerBtn.addEventListener('click', openMenu);
@@ -192,7 +96,25 @@
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeMenu();
+      if (e.key === 'Escape') {
+        closeMenu();
+        return;
+      }
+      // Atrapa el Tab dentro del menú mientras está abierto, para que no se
+      // salga hacia enlaces del fondo que quedan visualmente ocultos.
+      if (e.key === 'Tab' && mobileMenu.classList.contains('is-open')) {
+        var items = focusableItems();
+        if (!items.length) return;
+        var first = items[0];
+        var last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
     });
   })();
 
@@ -528,6 +450,7 @@
     var timeInput = document.getElementById('bookingTime');
     var nameInput = document.getElementById('bookingName');
     var phoneInput = document.getElementById('bookingPhone');
+    var websiteInput = document.getElementById('bookingWebsite'); // honeypot anti-spam
     var summary = document.getElementById('bookingSummary');
     var submitBtn = form ? form.querySelector('button[type="submit"]') : null;
     if (!form || !serviceSelect || !styleSelect || !dateInput || !slotsWrap || !timeInput) return;
@@ -549,7 +472,10 @@
 
       slotsWrap.innerHTML = '<p class="slots__empty">Cargando horarios…</p>';
 
-      apiGet({ action: 'slots', date: dateStr }).then(function (res) {
+      // Se manda el servicio elegido para que el servidor descarte también
+      // los horarios que se traslaparían con una cita ya confirmada, según
+      // la duración aproximada de cada servicio (no solo la hora exacta).
+      apiGet({ action: 'slots', date: dateStr, service: serviceSelect.value }).then(function (res) {
         if (res.error) {
           slotsWrap.innerHTML = '<p class="slots__empty slots__empty--error">No pudimos cargar los horarios. Intenta de nuevo.</p>';
           return;
@@ -635,6 +561,15 @@
         updateSummary();
       });
     });
+    // Si ya había una fecha elegida, cambiar el servicio puede cambiar qué
+    // horarios se traslaparían con una cita existente — se vuelve a pedir
+    // la disponibilidad para reflejarlo.
+    serviceSelect.addEventListener('change', function () {
+      if (dateInput.value) {
+        renderSlots(dateInput.value); // esto también limpia la hora elegida
+        updateSummary();
+      }
+    });
     if (nameInput) nameInput.addEventListener('input', function () { clearFieldError(nameInput); updateSummary(); });
     if (phoneInput) phoneInput.addEventListener('input', function () { clearFieldError(phoneInput); });
 
@@ -706,7 +641,8 @@
         service: serviceSelect.value,
         style: styleSelect.value,
         clientName: nameValue,
-        clientPhone: phoneDigits
+        clientPhone: phoneDigits,
+        website: websiteInput ? websiteInput.value : ''
       }).then(function (res) {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnHTML;

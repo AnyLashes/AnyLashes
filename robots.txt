@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin.js
+Disallow: /admin.css
+Disallow: /manifest-admin.json
+
+# No hay Sitemap: aquí porque requiere la URL absoluta de producción, que
+# no existe en ningún archivo de este proyecto. Agrega, una vez que el
+# sitio tenga su dominio final:
+# Sitemap: https://tu-dominio/sitemap.xml

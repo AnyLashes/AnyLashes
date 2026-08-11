@@ -4,30 +4,14 @@
   /* =========================================================
      CONFIG
      ========================================================= */
-  var API_URL = 'https://script.google.com/macros/s/AKfycby_dX7NN0w20zN7-zN7Yi7Gfoxq8JinteaT2K1fwNud8dLtTneHV7QDHEftP-Fidl9W_w/exec';
   var CLIENT_COUNTRY_CODE = '52'; // Verifica el código de país antes de publicar.
   var TOKEN_KEY = 'anylashes_admin_token';
 
-  var MONTHS_ES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-
   var token = sessionStorage.getItem(TOKEN_KEY) || null;
-  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* =========================================================
      HELPERS
      ========================================================= */
-  function pad2(n) { return n < 10 ? '0' + n : '' + n; }
-  function todayISO() {
-    var d = new Date();
-    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
-  }
-  function formatDateEs(dateStr) {
-    var parts = dateStr.split('-');
-    if (parts.length !== 3) return dateStr;
-    var day = parseInt(parts[2], 10);
-    var month = MONTHS_ES[parseInt(parts[1], 10) - 1];
-    return day + ' de ' + month + ' de ' + parts[0];
-  }
   // Solo se puede marcar "concluida" una vez que ya pasó la hora de la cita.
   // Se parsean fecha y hora a mano (en vez de "new Date('YYYY-MM-DDTHH:MM:00')")
   // porque si el string trae segundos u otro formato inesperado, ese parseo
@@ -51,47 +35,55 @@
   function buildClientWhatsAppUrl(phoneDigits, message) {
     return 'https://wa.me/' + CLIENT_COUNTRY_CODE + phoneDigits + '?text=' + encodeURIComponent(message);
   }
-  function escapeHtml(str) {
-    var div = document.createElement('div');
-    div.textContent = str == null ? '' : str;
-    return div.innerHTML;
+
+  // Los modales (.modal-overlay, .login-screen, .photo-lightbox) se abren
+  // con opacity/visibility + transición CSS. Justo al agregar "is-open",
+  // sus hijos todavía no son enfocables — "visibility: hidden" no termina
+  // de recalcularse en ese mismo tick, y un retraso fijo (requestAnimationFrame
+  // o un setTimeout con un número mágico de ms) resultó poco confiable bajo
+  // carga real de CPU. En vez de adivinar cuánto esperar, se pregunta de
+  // verdad si el modal ya es visible (con un tope de intentos para no
+  // quedar esperando para siempre si algo más impide abrirlo) y recién
+  // entonces se mueve el foco. Sin esto, un usuario de teclado que abre un
+  // modal a veces se queda con el foco en el botón que lo abrió.
+  function focusAfterOpen(el, attemptsLeft) {
+    if (!el) return;
+    if (attemptsLeft === undefined) attemptsLeft = 30; // ~0.5s a 60fps como tope
+    var modal = el.closest('.modal-overlay, .login-screen, .photo-lightbox');
+    var isVisible = !modal || getComputedStyle(modal).visibility !== 'hidden';
+    if (isVisible || attemptsLeft <= 0) {
+      el.focus();
+      return;
+    }
+    requestAnimationFrame(function () { focusAfterOpen(el, attemptsLeft - 1); });
   }
 
-  // Carga una foto probando varias URLs de Drive antes de rendirse. Google
-  // a veces bloquea o tarda en propagar un formato (p. ej. justo después
-  // de subir la foto) pero no otro — por eso algunas fotos "no cargaban".
-  // Probar formatos alternos en cadena hace que casi siempre se vea.
-  function loadPhotoWithFallback(imgEl, originalUrl, onFail) {
-    // Si esta imagen ya tenía un intento de carga previo (p. ej. al
-    // reintentar desde el estado de error), quita ese listener antes de
-    // poner uno nuevo — si no, se van acumulando y un solo error dispara
-    // varios intentos encimados con estados "attempt" distintos.
-    if (imgEl._fallbackHandler) imgEl.removeEventListener('error', imgEl._fallbackHandler);
-
-    var idMatch = String(originalUrl).match(/\/d\/([^/=?&]+)/) || String(originalUrl).match(/[?&]id=([^&=]+)/);
-    var fileId = idMatch ? idMatch[1] : null;
-
-    var candidates = [originalUrl];
-    if (fileId) {
-      ['https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1000',
-        'https://lh3.googleusercontent.com/d/' + fileId + '=w1000',
-        'https://drive.google.com/uc?export=view&id=' + fileId
-      ].forEach(function (u) { if (candidates.indexOf(u) === -1) candidates.push(u); });
+  // Foco atrapado dentro de un modal mientras está abierto: lo usan
+  // confirmModal, apptFormModal y cualquier otro modal futuro, para no
+  // repetir la misma lógica de Tab/Shift+Tab en cada uno.
+  function getFocusable(container) {
+    if (!container) return [];
+    return Array.prototype.slice
+      .call(container.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled])'))
+      .filter(function (el) { return el.offsetParent !== null; });
+  }
+  function trapTabKey(e, container) {
+    if (e.key !== 'Tab') return false;
+    var items = getFocusable(container);
+    if (!items.length) return false;
+    var first = items[0];
+    var last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+      return true;
     }
-
-    var attempt = 0;
-    function tryNext() {
-      if (attempt >= candidates.length) {
-        imgEl.removeEventListener('error', tryNext);
-        imgEl._fallbackHandler = null;
-        if (onFail) onFail();
-        return;
-      }
-      imgEl.src = candidates[attempt++];
+    if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+      return true;
     }
-    imgEl._fallbackHandler = tryNext;
-    imgEl.addEventListener('error', tryNext);
-    tryNext();
+    return false;
   }
 
   /* =========================================================
@@ -100,16 +92,27 @@
   var photoLightbox = document.getElementById('photoLightbox');
   var photoLightboxImg = document.getElementById('photoLightboxImg');
   var photoLightboxClose = document.getElementById('photoLightboxClose');
+  var photoLightboxLastFocused = null;
 
   function openPhotoLightbox(url) {
     if (!photoLightbox || !photoLightboxImg) return;
+    photoLightboxLastFocused = document.activeElement;
     photoLightboxImg.src = url;
     photoLightbox.classList.add('is-open');
+    // El modal usa opacity/visibility con transición CSS: justo al agregar
+    // "is-open" el navegador todavía puede no considerar su contenido
+    // enfocable (visibility aún no recalculada), así que .focus() aquí
+    // mismo no hace nada. requestAnimationFrame espera al siguiente pintado.
+    focusAfterOpen(photoLightboxClose);
   }
   function closePhotoLightbox() {
-    if (!photoLightbox) return;
+    if (!photoLightbox || !photoLightbox.classList.contains('is-open')) return;
     photoLightbox.classList.remove('is-open');
     photoLightboxImg.removeAttribute('src');
+    if (photoLightboxLastFocused && typeof photoLightboxLastFocused.focus === 'function') {
+      photoLightboxLastFocused.focus();
+    }
+    photoLightboxLastFocused = null;
   }
   if (photoLightboxClose) photoLightboxClose.addEventListener('click', closePhotoLightbox);
   if (photoLightbox) {
@@ -121,55 +124,9 @@
     if (e.key === 'Escape' && photoLightbox && photoLightbox.classList.contains('is-open')) closePhotoLightbox();
   });
 
-  // Abre una pestaña en blanco de forma síncrona (dentro del gesto del
-  // usuario) para poder redirigirla luego de una respuesta async sin que
-  // el navegador la bloquee como pop-up.
-  function openPendingTab() {
-    var tab = window.open('about:blank', '_blank');
-    if (tab) {
-      try {
-        tab.document.write('<title>Abriendo WhatsApp…</title><body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;color:#6E665D;">Redirigiendo a WhatsApp…</body>');
-      } catch (e) { /* noop */ }
-    }
-    return tab;
-  }
-
   /* =========================================================
      API
      ========================================================= */
-  var REQUEST_TIMEOUT_MS = 20000;
-
-  // fetch() no tiene límite de tiempo por sí solo: si el servidor o la red
-  // se cuelgan, la petición se queda esperando para siempre y cualquier
-  // botón que dependa de ella ("Guardando…") se queda pegado sin forma de
-  // salir. Este wrapper la corta a los 20s y la convierte en un error
-  // normal, para que el botón siempre se pueda volver a intentar.
-  function fetchWithTimeout(url, options) {
-    var controller = new AbortController();
-    var timedOut = false;
-    var timer = setTimeout(function () { timedOut = true; controller.abort(); }, REQUEST_TIMEOUT_MS);
-    options = options || {};
-    options.signal = controller.signal;
-    return fetch(url, options).then(function (r) {
-      clearTimeout(timer);
-      return r;
-    }).catch(function (err) {
-      clearTimeout(timer);
-      if (timedOut) throw new Error('La solicitud tardó demasiado. Revisa tu internet e intenta de nuevo.');
-      throw err;
-    });
-  }
-
-  function apiGet(params) {
-    var query = Object.keys(params)
-      .map(function (k) { return k + '=' + encodeURIComponent(params[k]); })
-      .join('&');
-    return fetchWithTimeout(API_URL + '?' + query).then(function (r) { return r.json(); });
-  }
-  function apiPost(payload) {
-    return fetchWithTimeout(API_URL, { method: 'POST', body: JSON.stringify(payload) })
-      .then(function (r) { return r.json(); });
-  }
   function isAuthError(res) {
     return !!(res && res.error && /sesión|no autorizado/i.test(res.error));
   }
@@ -254,7 +211,11 @@
       loginError.hidden = true;
     }
     loginPassword.value = '';
-    loginPassword.focus();
+    // Diferido al siguiente pintado: si esta pantalla estaba cerrada (p.
+    // ej. la sesión venció mientras se usaba el panel), classList.add
+    // dispara la transición de opacity/visibility y .focus() en el mismo
+    // tick todavía no encuentra el campo enfocable.
+    focusAfterOpen(loginPassword);
   }
 
   /* =========================================================
@@ -605,10 +566,10 @@
         toggleBtn.setAttribute('aria-label', collapsed ? 'Desplegar detalles de la cita' : 'Contraer detalles de la cita');
       });
 
-      if (appt.status === 'confirmed') {
-        var actions = document.createElement('div');
-        actions.className = 'appt-card__actions';
+      var actions = document.createElement('div');
+      actions.className = 'appt-card__actions';
 
+      if (appt.status === 'confirmed') {
         var completeBtn = document.createElement('button');
         completeBtn.type = 'button';
         completeBtn.className = 'btn btn--outline btn--sm';
@@ -646,8 +607,16 @@
 
         actions.appendChild(completeBtn);
         actions.appendChild(cancelBtn);
-        content.appendChild(actions);
       }
+
+      var editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'btn btn--outline btn--sm';
+      editBtn.innerHTML = '<svg class="icon icon--sm"><use href="#icon-edit"></use></svg>Editar / reprogramar';
+      editBtn.addEventListener('click', function () { openApptFormModal('edit', appt); });
+      actions.appendChild(editBtn);
+
+      content.appendChild(actions);
 
       content.appendChild(buildNotesBlock(appt));
       if (appt.status !== 'cancelled' && hasAppointmentPassed(appt)) {
@@ -956,17 +925,29 @@
   var confirmModalDismiss = document.getElementById('confirmModalDismiss');
   var confirmModalConfirmBtn = document.getElementById('confirmModalConfirm');
   var pendingConfirmAction = null;
+  var confirmModalLastFocused = null;
 
   function openConfirmModal(opts) {
+    confirmModalLastFocused = document.activeElement;
     confirmModalTitle.textContent = opts.title;
     confirmModalText.textContent = opts.text;
     confirmModalConfirmBtn.textContent = opts.confirmLabel;
     pendingConfirmAction = opts.onConfirm;
     confirmModal.classList.add('is-open');
+    // Enfoca "No, mantener" por defecto: así un Enter accidental no
+    // dispara la acción destructiva (cancelar cita / borrar foto). Se
+    // difiere al siguiente pintado por la misma razón que en el lightbox:
+    // justo al abrir, la visibilidad del modal todavía no se recalculó.
+    focusAfterOpen(confirmModalDismiss);
   }
   function closeConfirmModal() {
+    if (!confirmModal.classList.contains('is-open')) return;
     confirmModal.classList.remove('is-open');
     pendingConfirmAction = null;
+    if (confirmModalLastFocused && typeof confirmModalLastFocused.focus === 'function') {
+      confirmModalLastFocused.focus();
+    }
+    confirmModalLastFocused = null;
   }
   if (confirmModalDismiss) confirmModalDismiss.addEventListener('click', closeConfirmModal);
   if (confirmModal) {
@@ -975,7 +956,12 @@
     });
   }
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && confirmModal.classList.contains('is-open')) closeConfirmModal();
+    if (!confirmModal.classList.contains('is-open')) return;
+    if (e.key === 'Escape') {
+      closeConfirmModal();
+      return;
+    }
+    trapTabKey(e, confirmModal);
   });
   if (confirmModalConfirmBtn) {
     confirmModalConfirmBtn.addEventListener('click', function () {
@@ -1024,6 +1010,316 @@
           showToast('No pudimos cancelar la cita. Intenta de nuevo.');
         });
       }
+    });
+  }
+
+  /* =========================================================
+     FORMULARIO DE CITA — un solo modal para "Nueva cita" (creada por la
+     administradora) y "Editar / reprogramar" una cita existente. Llama a
+     createAdminAppointment o updateAppointment según el modo, que en el
+     servidor comparten toda la validación con la reservación pública
+     (mismos mensajes de error, mismo cálculo de traslapes).
+     ========================================================= */
+  var newApptBtn = document.getElementById('newApptBtn');
+  var apptFormModal = document.getElementById('apptFormModal');
+  var apptFormTitle = document.getElementById('apptFormTitle');
+  var apptForm = document.getElementById('apptForm');
+  var apptFormIdInput = document.getElementById('apptFormId');
+  var apptFormName = document.getElementById('apptFormName');
+  var apptFormPhone = document.getElementById('apptFormPhone');
+  var apptFormEmail = document.getElementById('apptFormEmail');
+  var apptFormStatus = document.getElementById('apptFormStatus');
+  var apptFormService = document.getElementById('apptFormService');
+  var apptFormStyle = document.getElementById('apptFormStyle');
+  var apptFormDate = document.getElementById('apptFormDate');
+  var apptFormSlotsWrap = document.getElementById('apptFormSlots');
+  var apptFormTimeInput = document.getElementById('apptFormTime');
+  var apptFormNotes = document.getElementById('apptFormNotes');
+  var apptFormFeedback = document.getElementById('apptFormFeedback');
+  var apptFormCancelBtn = document.getElementById('apptFormCancelBtn');
+  var apptFormSubmitBtn = document.getElementById('apptFormSubmitBtn');
+
+  var apptFormMode = 'create'; // 'create' | 'edit'
+  var apptFormEditingId = null;
+  var apptFormLastFocused = null;
+  var apptFormDirty = false;
+  var apptFormSlotsRequestToken = 0; // descarta respuestas de slots que ya no aplican
+  var apptFormOriginalTime = null; // hora que ya tenía la cita, en modo "edit"
+  var apptFormAutoSelectPending = false; // se consume en el primer render de horarios
+
+  function markDirty() { apptFormDirty = true; }
+
+  function clearApptFormErrors() {
+    if (!apptForm) return;
+    apptForm.querySelectorAll('.field.has-error').forEach(function (f) { f.classList.remove('has-error'); });
+  }
+  function markApptFormError(el, condition) {
+    var field = el.closest('.field');
+    if (!field) return false;
+    field.classList.toggle('has-error', !!condition);
+    return !!condition;
+  }
+
+  function renderApptFormSlots(times, booked, isToday, nowStr) {
+    if (!apptFormSlotsWrap) return;
+    apptFormTimeInput.value = '';
+    if (!times.length) {
+      apptFormSlotsWrap.innerHTML = '<p class="slots__empty">No hay horarios disponibles este día para este servicio.</p>';
+      return;
+    }
+    apptFormSlotsWrap.innerHTML = '';
+    times.slice().sort().forEach(function (time) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      var isPast = isToday && time <= nowStr;
+      var isBooked = booked.indexOf(time) !== -1;
+      if (isPast || isBooked) {
+        btn.className = 'slot-btn';
+        btn.disabled = true;
+        btn.title = isPast ? 'Ya pasó esta hora' : 'Este horario ya está ocupado';
+        btn.textContent = time;
+      } else {
+        btn.className = 'slot-btn';
+        btn.textContent = time;
+        btn.addEventListener('click', function () {
+          apptFormSlotsWrap.querySelectorAll('.slot-btn').forEach(function (b) { b.classList.remove('is-selected'); });
+          btn.classList.add('is-selected');
+          apptFormTimeInput.value = time;
+          markApptFormError(apptFormTimeInput, false);
+          markDirty();
+        });
+        // Al abrir "Editar / reprogramar", la hora que ya tenía la cita se
+        // deja preseleccionada (solo la primera vez que se pintan los
+        // horarios) — si no, guardar sin tocar el horario fallaba la
+        // validación de "elige un horario" aunque la cita ya tuviera uno.
+        if (apptFormAutoSelectPending && time === apptFormOriginalTime) {
+          btn.classList.add('is-selected');
+          apptFormTimeInput.value = time;
+        }
+      }
+      apptFormSlotsWrap.appendChild(btn);
+    });
+    apptFormAutoSelectPending = false;
+  }
+
+  // Se vuelve a pedir disponibilidad cada vez que cambia el servicio o la
+  // fecha (la duración del servicio puede cambiar qué horarios se
+  // traslaparían), y al reprogramar se excluye la propia cita para que su
+  // horario actual no aparezca como "ocupado" contra sí misma.
+  function fetchApptFormSlots() {
+    var date = apptFormDate.value;
+    var service = apptFormService.value;
+    if (!apptFormSlotsWrap) return;
+    if (!date || !service) {
+      apptFormSlotsWrap.innerHTML = '<p class="slots__empty">Elige primero servicio y fecha para ver los horarios disponibles.</p>';
+      apptFormTimeInput.value = '';
+      return;
+    }
+    apptFormSlotsWrap.innerHTML = '<p class="slots__empty">Cargando horarios…</p>';
+    var requestToken = ++apptFormSlotsRequestToken;
+    var params = { action: 'slots', date: date, service: service };
+    if (apptFormMode === 'edit' && apptFormEditingId) params.excludeId = apptFormEditingId;
+
+    apiGet(params).then(function (res) {
+      if (requestToken !== apptFormSlotsRequestToken) return; // llegó tarde: ya no aplica
+      if (res.error) {
+        apptFormSlotsWrap.innerHTML = '<p class="slots__empty slots__empty--error">No pudimos cargar los horarios. Intenta de nuevo.</p>';
+        return;
+      }
+      var isToday = date === todayISO();
+      renderApptFormSlots(res.times || [], res.booked || [], isToday, nowHHMM());
+    }).catch(function () {
+      if (requestToken !== apptFormSlotsRequestToken) return;
+      apptFormSlotsWrap.innerHTML = '<p class="slots__empty slots__empty--error">No pudimos conectar. Intenta de nuevo.</p>';
+    });
+  }
+
+  function resetApptForm() {
+    apptForm.reset();
+    apptFormIdInput.value = '';
+    apptFormTimeInput.value = '';
+    clearApptFormErrors();
+    if (apptFormFeedback) apptFormFeedback.textContent = '';
+    if (apptFormSlotsWrap) apptFormSlotsWrap.innerHTML = '<p class="slots__empty">Elige primero servicio y fecha para ver los horarios disponibles.</p>';
+    apptFormDirty = false;
+  }
+
+  function openApptFormModal(mode, appt, openerEl) {
+    if (!apptFormModal) return;
+    apptFormMode = mode;
+    apptFormEditingId = appt ? appt.id : null;
+    apptFormLastFocused = openerEl || document.activeElement;
+    apptFormOriginalTime = (mode === 'edit' && appt) ? appt.time : null;
+    apptFormAutoSelectPending = mode === 'edit';
+    resetApptForm();
+
+    if (mode === 'edit' && appt) {
+      apptFormTitle.textContent = 'Editar / reprogramar cita';
+      apptFormSubmitBtn.textContent = 'Guardar cambios';
+      apptFormIdInput.value = appt.id;
+      apptFormName.value = appt.clientName || '';
+      apptFormPhone.value = appt.clientPhone || '';
+      apptFormEmail.value = appt.clientEmail || '';
+      apptFormStatus.value = appt.status || 'confirmed';
+      apptFormService.value = appt.service || '';
+      apptFormStyle.value = appt.style || '';
+      apptFormDate.value = appt.date || '';
+      apptFormNotes.value = appt.notes || '';
+    } else {
+      apptFormTitle.textContent = 'Nueva cita';
+      apptFormSubmitBtn.textContent = 'Guardar cita';
+      apptFormStatus.value = 'confirmed';
+      // Si ya había un día seleccionado en el calendario y no es pasado,
+      // se usa como punto de partida — ahorra un clic en el caso común de
+      // "agregar una cita al día que ya estoy viendo".
+      apptFormDate.value = (selectedDate && selectedDate >= todayISO()) ? selectedDate : todayISO();
+    }
+    apptFormDate.min = todayISO();
+
+    apptFormModal.classList.add('is-open');
+    if (apptFormMode === 'edit' || apptFormService.value) fetchApptFormSlots();
+    apptFormDirty = false; // el prefill de "edit" no cuenta como cambio del usuario
+    // Diferido al siguiente pintado: igual que en confirmModal/lightbox,
+    // .focus() llamado en el mismo tick que classList.add("is-open") no
+    // hace nada porque el modal todavía es visibility:hidden en ese instante.
+    focusAfterOpen(apptFormName);
+  }
+
+  function reallyCloseApptForm() {
+    apptFormModal.classList.remove('is-open');
+    resetApptForm();
+    if (apptFormLastFocused && typeof apptFormLastFocused.focus === 'function') apptFormLastFocused.focus();
+    apptFormLastFocused = null;
+  }
+
+  function attemptCloseApptForm() {
+    if (!apptFormModal.classList.contains('is-open')) return;
+    if (!apptFormDirty) { reallyCloseApptForm(); return; }
+    openConfirmModal({
+      title: '¿Descartar esta cita?',
+      text: 'Hay datos capturados en el formulario que todavía no se han guardado. Si continúas, se perderán.',
+      confirmLabel: 'Sí, descartar',
+      onConfirm: function () {
+        closeConfirmModal();
+        reallyCloseApptForm();
+      }
+    });
+  }
+
+  if (newApptBtn) {
+    newApptBtn.addEventListener('click', function () { openApptFormModal('create', null, newApptBtn); });
+  }
+  if (apptFormCancelBtn) apptFormCancelBtn.addEventListener('click', attemptCloseApptForm);
+  if (apptFormModal) {
+    apptFormModal.addEventListener('click', function (e) {
+      if (e.target === apptFormModal) attemptCloseApptForm();
+    });
+  }
+  document.addEventListener('keydown', function (e) {
+    if (!apptFormModal || !apptFormModal.classList.contains('is-open')) return;
+    if (e.key === 'Escape') { attemptCloseApptForm(); return; }
+    trapTabKey(e, apptFormModal);
+  });
+
+  [apptFormName, apptFormPhone, apptFormEmail, apptFormNotes].forEach(function (el) {
+    if (el) el.addEventListener('input', function () { markDirty(); clearFieldErrorOf(el); });
+  });
+  function clearFieldErrorOf(el) {
+    var field = el.closest('.field');
+    if (field) field.classList.remove('has-error');
+  }
+  [apptFormStatus, apptFormStyle].forEach(function (el) {
+    if (el) el.addEventListener('change', function () { markDirty(); clearFieldErrorOf(el); });
+  });
+  if (apptFormService) {
+    apptFormService.addEventListener('change', function () {
+      markDirty();
+      clearFieldErrorOf(apptFormService);
+      fetchApptFormSlots();
+    });
+  }
+  if (apptFormDate) {
+    apptFormDate.addEventListener('change', function () {
+      markDirty();
+      clearFieldErrorOf(apptFormDate);
+      fetchApptFormSlots();
+    });
+  }
+
+  if (apptForm) {
+    apptForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      clearApptFormErrors();
+
+      var name = apptFormName.value.trim();
+      var phoneDigits = apptFormPhone.value.replace(/\D/g, '');
+      var email = apptFormEmail.value.trim();
+      var hasError = false;
+      var firstInvalid = null;
+
+      function fail(el, condition) {
+        if (markApptFormError(el, condition)) {
+          hasError = true;
+          if (!firstInvalid) firstInvalid = el;
+        }
+      }
+      fail(apptFormName, name.length < 2);
+      fail(apptFormPhone, phoneDigits.length !== 10);
+      fail(apptFormEmail, email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+      fail(apptFormService, !apptFormService.value);
+      fail(apptFormStyle, !apptFormStyle.value);
+      fail(apptFormDate, !apptFormDate.value);
+      fail(apptFormTimeInput, !apptFormTimeInput.value);
+
+      if (hasError) {
+        if (firstInvalid) firstInvalid.focus();
+        if (apptFormFeedback) apptFormFeedback.textContent = 'Revisa los campos marcados.';
+        return;
+      }
+
+      var payload = {
+        clientName: name,
+        clientPhone: phoneDigits,
+        clientEmail: email,
+        status: apptFormStatus.value,
+        service: apptFormService.value,
+        style: apptFormStyle.value,
+        date: apptFormDate.value,
+        time: apptFormTimeInput.value,
+        notes: apptFormNotes.value.trim()
+      };
+
+      var isEdit = apptFormMode === 'edit';
+      if (isEdit) payload.id = apptFormIdInput.value;
+
+      apptFormSubmitBtn.disabled = true;
+      var originalLabel = apptFormSubmitBtn.textContent;
+      apptFormSubmitBtn.textContent = 'Guardando…';
+      if (apptFormFeedback) apptFormFeedback.textContent = '';
+
+      authApiPost(Object.assign({ action: isEdit ? 'updateAppointment' : 'createAdminAppointment' }, payload))
+        .then(function (res) {
+          apptFormSubmitBtn.disabled = false;
+          apptFormSubmitBtn.textContent = originalLabel;
+
+          if (res.error) {
+            if (apptFormFeedback) apptFormFeedback.textContent = res.error;
+            // El horario pudo haberse ocupado entre que se cargó la lista y
+            // se envió el formulario (otra reserva, otra pestaña) — se
+            // refresca para que la administradora vea el estado real.
+            fetchApptFormSlots();
+            return;
+          }
+
+          apptFormDirty = false;
+          reallyCloseApptForm();
+          showToast(isEdit ? 'Cita actualizada.' : 'Cita creada correctamente.');
+          loadMonthData();
+        }).catch(function () {
+          apptFormSubmitBtn.disabled = false;
+          apptFormSubmitBtn.textContent = originalLabel;
+          if (apptFormFeedback) apptFormFeedback.textContent = 'No pudimos conectar con el servidor. Intenta de nuevo.';
+        });
     });
   }
 
@@ -1162,9 +1458,11 @@
         return;
       }
 
+      // "Generar" reemplaza la lista por completo: si vuelves a generar con
+      // otro rango/intervalo, los horarios anteriores no se quedan mezclados.
+      currentSlots = [];
       for (var m = fromMinutes; m < toMinutesVal; m += interval) {
-        var t = minutesToTime(m);
-        if (currentSlots.indexOf(t) === -1) currentSlots.push(t);
+        currentSlots.push(minutesToTime(m));
       }
       scheduleDirty = true;
       renderScheduleList();
