@@ -34,7 +34,7 @@ const crypto = require('crypto');
 
 function pad(n) { return n < 10 ? '0' + n : '' + n; }
 
-function makeSheet(name) {
+function makeSheet(name, counters) {
   const rows = [];
   return {
     name,
@@ -47,8 +47,10 @@ function makeSheet(name) {
     getRange(a, b, c, d) {
       if (typeof a === 'string') {
         // Notación A1 (p. ej. "A2:A"): en este código solo se usa para
-        // setNumberFormat, que no afecta la lógica de negocio — no-op.
-        return { setNumberFormat() {} };
+        // setNumberFormat, que no afecta la lógica de negocio en sí, pero
+        // SÍ cuenta como una escritura a Sheets — se cuenta para poder
+        // probar que ensureSheets_ no se repite en cada petición.
+        return { setNumberFormat() { if (counters) counters.setNumberFormatCalls++; } };
       }
       const row = a;
       const col = b;
@@ -79,12 +81,12 @@ function makeSheet(name) {
   };
 }
 
-function createFakeSpreadsheet() {
+function createFakeSpreadsheet(counters) {
   const sheets = {};
   return {
     getSheetByName: (name) => sheets[name] || null,
     insertSheet(name) {
-      const s = makeSheet(name);
+      const s = makeSheet(name, counters);
       sheets[name] = s;
       return s;
     },
@@ -99,7 +101,8 @@ function createFakeSpreadsheet() {
  * adentro — sus funciones quedan disponibles como propiedades de lo que
  * devuelve esta función, p. ej. `env.createAppointment(...)`. */
 function loadAppsScript() {
-  const fakeSpreadsheet = createFakeSpreadsheet();
+  const counters = { setNumberFormatCalls: 0 };
+  const fakeSpreadsheet = createFakeSpreadsheet(counters);
   const propsStore = {};
   const cacheStore = {};
 
@@ -111,6 +114,7 @@ function loadAppsScript() {
     getScriptProperties: () => ({
       getProperty: (k) => (Object.prototype.hasOwnProperty.call(propsStore, k) ? propsStore[k] : null),
       setProperty: (k, v) => { propsStore[k] = v; },
+      deleteProperty: (k) => { delete propsStore[k]; },
     }),
   };
   const CacheService = {
@@ -174,6 +178,10 @@ function loadAppsScript() {
   vm.createContext(sandbox);
   const code = fs.readFileSync(path.join(__dirname, '..', '..', 'apps-script-code.gs'), 'utf8');
   vm.runInContext(code, sandbox, { filename: 'apps-script-code.gs' });
+  // Expuesto para pruebas que verifican cuántas escrituras "de preparación
+  // de la hoja" se hicieron de verdad (ensureSheets_ no debe repetirse en
+  // cada petición — ver apps-script.performance.test.js).
+  sandbox._counters = counters;
   return sandbox;
 }
 
