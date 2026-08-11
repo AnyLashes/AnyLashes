@@ -1027,7 +1027,6 @@
   var apptFormIdInput = document.getElementById('apptFormId');
   var apptFormName = document.getElementById('apptFormName');
   var apptFormPhone = document.getElementById('apptFormPhone');
-  var apptFormEmail = document.getElementById('apptFormEmail');
   var apptFormStatus = document.getElementById('apptFormStatus');
   var apptFormService = document.getElementById('apptFormService');
   var apptFormStyle = document.getElementById('apptFormStyle');
@@ -1159,7 +1158,6 @@
       apptFormIdInput.value = appt.id;
       apptFormName.value = appt.clientName || '';
       apptFormPhone.value = appt.clientPhone || '';
-      apptFormEmail.value = appt.clientEmail || '';
       apptFormStatus.value = appt.status || 'confirmed';
       apptFormService.value = appt.service || '';
       apptFormStyle.value = appt.style || '';
@@ -1221,7 +1219,7 @@
     trapTabKey(e, apptFormModal);
   });
 
-  [apptFormName, apptFormPhone, apptFormEmail, apptFormNotes].forEach(function (el) {
+  [apptFormName, apptFormPhone, apptFormNotes].forEach(function (el) {
     if (el) el.addEventListener('input', function () { markDirty(); clearFieldErrorOf(el); });
   });
   function clearFieldErrorOf(el) {
@@ -1253,7 +1251,6 @@
 
       var name = apptFormName.value.trim();
       var phoneDigits = apptFormPhone.value.replace(/\D/g, '');
-      var email = apptFormEmail.value.trim();
       var hasError = false;
       var firstInvalid = null;
 
@@ -1265,7 +1262,6 @@
       }
       fail(apptFormName, name.length < 2);
       fail(apptFormPhone, phoneDigits.length !== 10);
-      fail(apptFormEmail, email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
       fail(apptFormService, !apptFormService.value);
       fail(apptFormStyle, !apptFormStyle.value);
       fail(apptFormDate, !apptFormDate.value);
@@ -1280,7 +1276,6 @@
       var payload = {
         clientName: name,
         clientPhone: phoneDigits,
-        clientEmail: email,
         status: apptFormStatus.value,
         service: apptFormService.value,
         style: apptFormStyle.value,
@@ -1369,9 +1364,12 @@
     });
   }
 
+  var scheduleFetchToken = 0; // descarta respuestas de "cargar horario" que ya no aplican
+
   function loadDaySchedule(dateStr) {
     if (scheduleFeedback) scheduleFeedback.textContent = '';
     scheduleDirty = false;
+    var requestToken = ++scheduleFetchToken;
     if (!dateStr) {
       currentSlots = [];
       lastLoadedScheduleDate = null;
@@ -1381,12 +1379,20 @@
     scheduleList.innerHTML = '<p class="slots__empty">Cargando…</p>';
 
     authApiGet({ action: 'schedule', dateFrom: dateStr, dateTo: dateStr }).then(function (res) {
+      // Si mientras se esperaba la respuesta el usuario ya cambió de día,
+      // o ya empezó a editar este mismo día (generó horarios o agregó uno
+      // a mano antes de que la carga terminara), esta respuesta llegó
+      // tarde y NO debe pisar lo que el usuario ya está armando. Sin este
+      // filtro, un horario recién agregado desaparecía solo y "Guardar"
+      // terminaba mandando una lista vacía.
+      if (requestToken !== scheduleFetchToken || scheduleDirty) return;
       var schedule = (res && res.schedule) || {};
       currentSlots = (schedule[dateStr] || []).slice();
       lastLoadedScheduleDate = dateStr;
       scheduleDirty = false;
       renderScheduleList();
     }).catch(function () {
+      if (requestToken !== scheduleFetchToken || scheduleDirty) return;
       scheduleList.innerHTML = '<p class="slots__empty slots__empty--error">No pudimos cargar el horario. Intenta de nuevo.</p>';
     });
   }
@@ -1481,38 +1487,59 @@
     return pad2(h) + ':' + pad2(m);
   }
 
+  function reallySaveSchedule() {
+    var dateValue = scheduleDateInput.value;
+    saveScheduleBtn.disabled = true;
+    var original = saveScheduleBtn.textContent;
+    saveScheduleBtn.textContent = 'Guardando…';
+
+    authApiPost({ action: 'saveSchedule', date: dateValue, slots: currentSlots.slice().sort() }).then(function (res) {
+      saveScheduleBtn.disabled = false;
+      saveScheduleBtn.textContent = original;
+
+      if (res.error) {
+        if (scheduleFeedback) scheduleFeedback.textContent = res.error;
+        return;
+      }
+      scheduleDirty = false;
+      lastLoadedScheduleDate = dateValue;
+      if (scheduleFeedback) scheduleFeedback.textContent = 'Horario guardado ✓';
+      showToast('Horario del ' + formatDateEs(dateValue) + ' guardado.');
+
+      // Si el día guardado cae dentro del mes visible, refresca el calendario.
+      var range = monthRange(viewYear, viewMonth);
+      if (dateValue >= range.from && dateValue <= range.to) loadMonthData();
+    }).catch(function () {
+      saveScheduleBtn.disabled = false;
+      saveScheduleBtn.textContent = original;
+      if (scheduleFeedback) scheduleFeedback.textContent = 'No pudimos guardar. Intenta de nuevo.';
+    });
+  }
+
   if (saveScheduleBtn) {
     saveScheduleBtn.addEventListener('click', function () {
       if (!scheduleDateInput.value) {
         if (scheduleFeedback) scheduleFeedback.textContent = 'Selecciona primero un día.';
         return;
       }
-      var dateValue = scheduleDateInput.value;
-      saveScheduleBtn.disabled = true;
-      var original = saveScheduleBtn.textContent;
-      saveScheduleBtn.textContent = 'Guardando…';
-
-      authApiPost({ action: 'saveSchedule', date: dateValue, slots: currentSlots.slice().sort() }).then(function (res) {
-        saveScheduleBtn.disabled = false;
-        saveScheduleBtn.textContent = original;
-
-        if (res.error) {
-          if (scheduleFeedback) scheduleFeedback.textContent = res.error;
-          return;
-        }
-        scheduleDirty = false;
-        lastLoadedScheduleDate = dateValue;
-        if (scheduleFeedback) scheduleFeedback.textContent = 'Horario guardado ✓';
-        showToast('Horario del ' + formatDateEs(dateValue) + ' guardado.');
-
-        // Si el día guardado cae dentro del mes visible, refresca el calendario.
-        var range = monthRange(viewYear, viewMonth);
-        if (dateValue >= range.from && dateValue <= range.to) loadMonthData();
-      }).catch(function () {
-        saveScheduleBtn.disabled = false;
-        saveScheduleBtn.textContent = original;
-        if (scheduleFeedback) scheduleFeedback.textContent = 'No pudimos guardar. Intenta de nuevo.';
-      });
+      // Red de seguridad: guardar una lista vacía borra TODOS los horarios
+      // de ese día (nadie podría reservar). Se pide confirmar en vez de
+      // hacerlo en silencio, por si fue un error o una edición que se
+      // perdió (p. ej. la carrera que se corrigió arriba).
+      if (!currentSlots.length) {
+        openConfirmModal({
+          title: '¿Guardar sin horarios?',
+          text: 'No hay ningún horario en la lista para el ' + formatDateEs(scheduleDateInput.value) +
+            '. Si guardas así, ese día quedará sin horarios disponibles para reservar.',
+          confirmLabel: 'Sí, guardar vacío',
+          onConfirm: function () {
+            closeConfirmModal();
+            reallySaveSchedule();
+          }
+        });
+        return;
+      }
+      reallySaveSchedule();
     });
   }
 

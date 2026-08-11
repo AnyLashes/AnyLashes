@@ -1097,6 +1097,14 @@ h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 600; line-height: 
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   min-height: 48px;
 }
+/* Safari en iOS dibuja <input type="date"> con su propio control nativo y
+   puede ignorar el padding, quedando más alto que los demás campos. Fijar
+   una altura (no solo mínima) lo alinea con el resto del formulario. */
+.field input[type="date"] {
+  height: 48px;
+  -webkit-appearance: none;
+  appearance: none;
+}
 .field select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236E665D' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");

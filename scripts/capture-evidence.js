@@ -51,7 +51,6 @@ async function main() {
     await page.locator('#newApptBtn').click();
     await page.fill('#apptFormName', 'María Manual');
     await page.fill('#apptFormPhone', '2321234567');
-    await page.fill('#apptFormEmail', 'maria@example.com');
     await page.selectOption('#apptFormService', 'Técnica clásica');
     await page.selectOption('#apptFormStyle', 'Natural Soft');
     await page.fill('#apptFormDate', date);

@@ -13,10 +13,9 @@ async function selectCalendarDay(page, dateStr) {
   throw new Error('No se encontró el día ' + dateStr + ' en el calendario tras navegar meses.');
 }
 
-async function fillApptForm(page, { name = 'Cliente Manual', phone = '2321234567', email = '', service = 'Técnica clásica', style = 'Natural Soft', date, notes = '' } = {}) {
+async function fillApptForm(page, { name = 'Cliente Manual', phone = '2321234567', service = 'Técnica clásica', style = 'Natural Soft', date, notes = '' } = {}) {
   await page.fill('#apptFormName', name);
   await page.fill('#apptFormPhone', phone);
-  if (email) await page.fill('#apptFormEmail', email);
   await page.selectOption('#apptFormService', service);
   await page.selectOption('#apptFormStyle', style);
   await page.fill('#apptFormDate', date);
@@ -71,7 +70,7 @@ test.describe('Panel administrativo — crear, editar y reprogramar citas manual
     await loginAsAdmin(page, env);
 
     await page.locator('#newApptBtn').click();
-    await fillApptForm(page, { date, name: 'María Manual', email: 'maria@example.com', notes: 'Cliente VIP' });
+    await fillApptForm(page, { date, name: 'María Manual', notes: 'Cliente VIP' });
     await page.locator('#apptFormSlots .slot-btn').first().click();
     await page.locator('#apptFormSubmitBtn').click();
 
@@ -86,7 +85,6 @@ test.describe('Panel administrativo — crear, editar y reprogramar citas manual
     const appts = env.getAppointments(date, date).appointments;
     expect(appts).toHaveLength(1);
     expect(appts[0].source).toBe('admin');
-    expect(appts[0].clientEmail).toBe('maria@example.com');
   });
 
   test('doble clic al guardar no crea dos citas', async ({ page, env }) => {
