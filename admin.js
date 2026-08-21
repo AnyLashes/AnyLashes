@@ -675,7 +675,6 @@
     var input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.setAttribute('capture', 'environment');
     input.hidden = true;
 
     var frame = document.createElement('div');
